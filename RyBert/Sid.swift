@@ -127,6 +127,13 @@ class Sid {
                 sid.x = sid.x + dx
                 sid.y = sid.y + dy
                 
+                if gamegrid.getTile(X:  sid.x, Y:  sid.y) == 0
+                {
+                    sid.x = sid.x - dx
+                    sid.y = sid.y - dy
+                }
+                
+                
                 
                 // Animate the move
                 

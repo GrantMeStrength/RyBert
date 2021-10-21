@@ -25,11 +25,13 @@ class GameGrid {
     
     func getTile(X: Int, Y: Int) -> Int
     {
+        if X < 0 || X > 12 || Y < 0 || Y > 6 { return 0}
         return level_1[Y][X]
     }
     
     func setTile(X: Int, Y: Int, tile: Int)
     {
+        if X < 0 || X > 12 || Y < 0 || Y > 6 { return }
         level_1[Y][X] = tile
     }
     
