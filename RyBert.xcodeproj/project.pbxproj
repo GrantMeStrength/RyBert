@@ -39,6 +39,7 @@
 		5288BB33271FB41200F06698 /* disk.atlas */ = {isa = PBXFileReference; lastKnownFileType = folder.skatlas; path = disk.atlas; sourceTree = "<group>"; };
 		5288BB352720FBF300F06698 /* Sid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sid.swift; sourceTree = "<group>"; };
 		5288BB39272128B600F06698 /* sid.atlas */ = {isa = PBXFileReference; lastKnownFileType = folder.skatlas; path = sid.atlas; sourceTree = "<group>"; };
+		5288BB3B2721A5A300F06698 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -55,6 +56,7 @@
 		525777F5271A7C7600598A2A = {
 			isa = PBXGroup;
 			children = (
+				5288BB3B2721A5A300F06698 /* README.md */,
 				52577800271A7C7600598A2A /* RyBert */,
 				525777FF271A7C7600598A2A /* Products */,
 			);
