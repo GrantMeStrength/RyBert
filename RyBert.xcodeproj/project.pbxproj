@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		522B33C1271E55D1000794E1 /* Blob.swift in Sources */ = {isa = PBXBuildFile; fileRef = 522B33C0271E55D1000794E1 /* Blob.swift */; };
+		522B33C3271E576E000794E1 /* GameGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 522B33C2271E576E000794E1 /* GameGrid.swift */; };
+		522B33C5271E5A2F000794E1 /* Tile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 522B33C4271E5A2F000794E1 /* Tile.swift */; };
 		52577802271A7C7600598A2A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52577801271A7C7600598A2A /* AppDelegate.swift */; };
 		52577804271A7C7600598A2A /* GameScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 52577803271A7C7600598A2A /* GameScene.sks */; };
 		52577806271A7C7600598A2A /* Actions.sks in Resources */ = {isa = PBXBuildFile; fileRef = 52577805271A7C7600598A2A /* Actions.sks */; };
@@ -15,9 +18,15 @@
 		5257780D271A7C7600598A2A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5257780B271A7C7600598A2A /* Main.storyboard */; };
 		5257780F271A7C7700598A2A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5257780E271A7C7700598A2A /* Assets.xcassets */; };
 		52577812271A7C7700598A2A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 52577810271A7C7700598A2A /* LaunchScreen.storyboard */; };
+		5288BB34271FB41200F06698 /* disk.atlas in Resources */ = {isa = PBXBuildFile; fileRef = 5288BB33271FB41200F06698 /* disk.atlas */; };
+		5288BB362720FBF300F06698 /* Sid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5288BB352720FBF300F06698 /* Sid.swift */; };
+		5288BB3A272128B600F06698 /* sid.atlas in Resources */ = {isa = PBXBuildFile; fileRef = 5288BB39272128B600F06698 /* sid.atlas */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		522B33C0271E55D1000794E1 /* Blob.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Blob.swift; sourceTree = "<group>"; };
+		522B33C2271E576E000794E1 /* GameGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameGrid.swift; sourceTree = "<group>"; };
+		522B33C4271E5A2F000794E1 /* Tile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tile.swift; sourceTree = "<group>"; };
 		525777FE271A7C7600598A2A /* RyBert.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RyBert.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		52577801271A7C7600598A2A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		52577803271A7C7600598A2A /* GameScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = GameScene.sks; sourceTree = "<group>"; };
@@ -27,6 +36,9 @@
 		5257780C271A7C7600598A2A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		5257780E271A7C7700598A2A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		52577811271A7C7700598A2A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		5288BB33271FB41200F06698 /* disk.atlas */ = {isa = PBXFileReference; lastKnownFileType = folder.skatlas; path = disk.atlas; sourceTree = "<group>"; };
+		5288BB352720FBF300F06698 /* Sid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sid.swift; sourceTree = "<group>"; };
+		5288BB39272128B600F06698 /* sid.atlas */ = {isa = PBXFileReference; lastKnownFileType = folder.skatlas; path = sid.atlas; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -59,10 +71,16 @@
 		52577800271A7C7600598A2A /* RyBert */ = {
 			isa = PBXGroup;
 			children = (
+				5288BB39272128B600F06698 /* sid.atlas */,
+				5288BB33271FB41200F06698 /* disk.atlas */,
 				52577801271A7C7600598A2A /* AppDelegate.swift */,
 				52577803271A7C7600598A2A /* GameScene.sks */,
 				52577805271A7C7600598A2A /* Actions.sks */,
+				5288BB352720FBF300F06698 /* Sid.swift */,
 				52577807271A7C7600598A2A /* GameScene.swift */,
+				522B33C2271E576E000794E1 /* GameGrid.swift */,
+				522B33C4271E5A2F000794E1 /* Tile.swift */,
+				522B33C0271E55D1000794E1 /* Blob.swift */,
 				52577809271A7C7600598A2A /* GameViewController.swift */,
 				5257780B271A7C7600598A2A /* Main.storyboard */,
 				5257780E271A7C7700598A2A /* Assets.xcassets */,
@@ -132,7 +150,9 @@
 				5257780D271A7C7600598A2A /* Main.storyboard in Resources */,
 				52577804271A7C7600598A2A /* GameScene.sks in Resources */,
 				5257780F271A7C7700598A2A /* Assets.xcassets in Resources */,
+				5288BB3A272128B600F06698 /* sid.atlas in Resources */,
 				52577812271A7C7700598A2A /* LaunchScreen.storyboard in Resources */,
+				5288BB34271FB41200F06698 /* disk.atlas in Resources */,
 				52577806271A7C7600598A2A /* Actions.sks in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -144,9 +164,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				522B33C1271E55D1000794E1 /* Blob.swift in Sources */,
 				52577808271A7C7600598A2A /* GameScene.swift in Sources */,
+				5288BB362720FBF300F06698 /* Sid.swift in Sources */,
+				522B33C3271E576E000794E1 /* GameGrid.swift in Sources */,
 				5257780A271A7C7600598A2A /* GameViewController.swift in Sources */,
 				52577802271A7C7600598A2A /* AppDelegate.swift in Sources */,
+				522B33C5271E5A2F000794E1 /* Tile.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
