@@ -129,7 +129,7 @@ class Blob {
         blobs[b].c = -5
     }
     
-    func controlBlobs()
+    func controlBlobs(QX: Int, QY: Int)
     {
         for b in 0...2 {
             
@@ -155,6 +155,14 @@ class Blob {
                 if blobs[b].c > 0
             {
                     blobStep(b: b)
+                    
+                    if (QX == blobs[b].x && QY == blobs[b].y)
+                    {
+                        let event = ["Blob": "Died"]
+                        let notification = Notification(name: .gameEvent, object: nil, userInfo: event)
+                        NotificationCenter.default.post(notification)
+                    }
+                    
                 }
             
             }

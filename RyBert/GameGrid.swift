@@ -10,11 +10,20 @@ import GameplayKit
 
 class GameGrid {
     
-    private var level_1 : [[Int]] =          [
+  
+    public let empty = 0
+    public let  yellow = 1
+    public let  blue = 2
+    public let  red = 3
+    public let  diskLeft = 4
+    public let  diskRight = 5
+   
+    
+    private var level_1 : [[Int]] = [
                                     [0,0,0,0,0,0,1,0,0,0,0,0,0],
                                     [0,0,0,0,0,1,0,1,0,0,0,0,0],
                                     [0,0,0,0,1,0,1,0,1,0,0,0,0],
-                                    [0,4,0,1,0,1,0,1,0,1,0,3,0],
+                                    [0,4,0,1,0,1,0,1,0,1,0,5,0],
                                     [0,0,1,0,1,0,1,0,1,0,1,0,0],
                                     [0,1,0,1,0,1,0,1,0,1,0,1,0],
                                     [1,0,1,0,1,0,1,0,1,0,1,0,1]]

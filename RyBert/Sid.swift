@@ -54,6 +54,13 @@ class Sid {
     {
         // Step a blob down a step
         
+        if (QX == sid.x && QY == sid.y)
+        {
+            let event = ["Sid": "Died"]
+            let notification = Notification(name: .gameEvent, object: nil, userInfo: event)
+            NotificationCenter.default.post(notification)
+        }
+        
         if sid.mode == false {
         
         sid.y = sid.y + 1
@@ -91,6 +98,8 @@ class Sid {
     }
         else
         {
+            
+            
             // Snake movement
             
             sid.c = sid.c + 1

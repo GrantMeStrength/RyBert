@@ -24,12 +24,27 @@ class GameScene: SKScene {
     private let level = 1
     private var lives = 3
     private var score = 0
+    private var level_count = 0
     
     private var Blobs : Blob?
     private var Tiles : Tile?
     private var Grid : GameGrid?
     private var TheSid : Sid?
+    
+    
+    enum gameState {
+        
+        case attract
+        case gamestart
+        case levelstart
+        case getready
+        case action
+        case died
+        case levelcomplete
+    }
 
+    
+    private var GameState : gameState = .attract
     
     override func didMove(to view: SKView) {
         
@@ -38,6 +53,7 @@ class GameScene: SKScene {
         if let label = self.label {
             label.alpha = 0.0
             label.run(SKAction.fadeIn(withDuration: 2.0))
+            label.text = "Score: " + String(score)
         }
         
         Blobs = Blob(withScene: self)
@@ -57,6 +73,22 @@ class GameScene: SKScene {
         }
         
 
+        // Add notification system
+               
+        NotificationCenter.default.addObserver(forName: .gameEvent, object: nil, queue: nil) {(notification) in
+                   
+                 
+            if let data = notification.userInfo as? [String: String] {
+            
+                   for (name, score) in data {
+                       print("\(name) went and \(score) !")
+                   }
+               }
+                  
+               }
+              
+
+
        
        
         
@@ -67,7 +99,7 @@ class GameScene: SKScene {
             if ticks == 4 { ticks = 0}
             
             TheSid!.controlSid(QX : qbert_x, QY: qbert_y)
-            Blobs!.controlBlobs()
+            Blobs!.controlBlobs(QX : qbert_x, QY: qbert_y)
         }
         
     }
@@ -76,7 +108,6 @@ class GameScene: SKScene {
     {
         if Grid?.getTile(X: X, Y: Y) == 1 {
             Grid?.setTile(X: X, Y: Y, tile: 2)
-            score = score + 1
             let p = Grid!.convertToScreenFromGrid(X: X, Y: Y)
             Tiles!.generateAlternateTile(atPoint: CGPoint(x: p.x, y: p.y - 40))
         }
@@ -204,16 +235,53 @@ class GameScene: SKScene {
             
             let fall = SKAction.moveTo(y:-700, duration: 0.4)
             qbert?.run(SKAction.sequence([jump, fall]))
+            
+            
+            let event = ["Qbery": "Fall"]
+            let notification = Notification(name: .gameEvent, object: nil, userInfo: event)
+            NotificationCenter.default.post(notification)
+            
         }
         else
         {
             // Ok!
-            // Change tile color a split second later
+            // Change tile color a split second later if it hasn't already been changed
             
             let jump = SKAction.sequence([jumpA, jumpB, jump5])
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                self.drawAlternateTile(X: self.qbert_x, Y: self.qbert_y)
+                
+                if self.Grid?.getTile(X: self.qbert_x, Y: self.qbert_y) == 1 {
+                    
+                   
+                    self.drawAlternateTile(X: self.qbert_x, Y: self.qbert_y)
+                    self.level_count = self.level_count + 1
+                    self.score = self.score + 25
+                    self.label?.text = "Score: " + String(self.score)
+                }
+                
+                if self.Grid?.getTile(X: self.qbert_x, Y: self.qbert_y) == self.Grid?.diskLeft {
+               
+                    // Flying disk!
+                   
+                        let event = ["Disk": "Left"]
+                        let notification = Notification(name: .gameEvent, object: nil, userInfo: event)
+                        NotificationCenter.default.post(notification)
+                    
+                    
+                }
+                
+                if self.Grid?.getTile(X: self.qbert_x, Y: self.qbert_y) == self.Grid?.diskRight {
+               
+                    // Flying disk!
+                   
+                        let event = ["Disk": "Right"]
+                        let notification = Notification(name: .gameEvent, object: nil, userInfo: event)
+                        NotificationCenter.default.post(notification)
+                
+                }
+                
+               
                 self.jumpCounter = 0
             }
             
@@ -235,7 +303,8 @@ class GameScene: SKScene {
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         if let label = self.label {
-            label.run(SKAction.init(named: "Pulse")!, withKey: "fadeInOut")
+            //label.run(SKAction.init(named: "Pulse")!, withKey: "fadeInOut")
+            //label.text = "Score: " + String(score)
         }
         
         for t in touches { self.touchDown(atPoint: t.location(in: self)) }

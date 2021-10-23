@@ -14,13 +14,15 @@ class Tile {
     private var gamegrid = GameGrid()
     private var tile_blue : SKSpriteNode?
     private var tile_yellow : SKSpriteNode?
+    private var tile_red : SKSpriteNode?
+   
     private var myScene : SKScene?
-    
     
     private var disk_left : SKSpriteNode?
     private var disk_right : SKSpriteNode?
     private var disk_frames : [SKTexture] = []
    
+    
     
     init (withScene theScene: SKScene)
     {
@@ -28,7 +30,7 @@ class Tile {
         myScene = theScene
         
         
-        builDisk()
+        buildDisk()
         
         // Create tile node for drawing the game grid
         
@@ -47,6 +49,11 @@ class Tile {
             tile_blue.zPosition = 2
         }
         
+        self.tile_red = SKSpriteNode(imageNamed: "square_red")
+        if let tile_red = tile_red {
+            tile_red.size = CGSize(width: 288/3, height: 320/2.5)
+            tile_red.zPosition = 3
+        }
         
         // Spinny disks
         
@@ -82,7 +89,7 @@ class Tile {
     }
     
     
-    func builDisk() {
+    func buildDisk() {
       let diskAtlas = SKTextureAtlas(named: "disk")
       var spinFrames: [SKTexture] = []
 
@@ -117,21 +124,21 @@ class Tile {
         for y in 0...6 {
             for x in 0...12 {
                 
-                if gamegrid.getTile(X: x, Y: y) == 1 {
+                if gamegrid.getTile(X: x, Y: y) == gamegrid.yellow {
                     let p = gamegrid.convertToScreenFromGrid(X: x, Y: y)
                     generateTile(atPoint: CGPoint(x: p.x, y: p.y - 40))
                 }
                 
-                if gamegrid.getTile(X: x, Y: y) == 3 { // Left disk
+                if gamegrid.getTile(X: x, Y: y) == gamegrid.diskLeft { // a disk
                     let p = gamegrid.convertToScreenFromGrid(X: x, Y: y)
                     disk_left!.position = CGPoint(x: p.x, y: p.y - 24)
                     
                 }
                 
-                if gamegrid.getTile(X: x, Y: y) == 4 { // Right disk
+                if gamegrid.getTile(X: x, Y: y) == gamegrid.diskRight { // Right disk
                     let p = gamegrid.convertToScreenFromGrid(X: x, Y: y)
                     disk_right!.position = CGPoint(x: p.x, y: p.y - 24)
-                    
+
                 }
                 
             }
