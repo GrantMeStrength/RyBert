@@ -15,6 +15,9 @@ class Tile {
     private var tile_blue : SKSpriteNode?
     private var tile_yellow : SKSpriteNode?
     private var tile_red : SKSpriteNode?
+    
+    private var root : SKSpriteNode?
+   
    
     private var myScene : SKScene?
     
@@ -29,6 +32,8 @@ class Tile {
         
         myScene = theScene
         
+        root = SKSpriteNode()
+        myScene?.addChild(root!)
         
         buildDisk()
         
@@ -88,6 +93,13 @@ class Tile {
         
     }
     
+    func removeTiles()
+    {
+        // Delete all existing tiles (except the disks, they're still attached to myscene
+        // and don't need re-created.
+        
+        root!.removeAllActions()
+    }
     
     func buildDisk() {
       let diskAtlas = SKTextureAtlas(named: "disk")
@@ -102,12 +114,14 @@ class Tile {
     }
 
     
-    func flyingDisk( left_side : Bool)
+    func flyingDisk( left_side : Bool, qbertpos : (Int, Int))
     {
         let np = CGPoint(x: 0, y: 500-24)
         let fly = SKAction.move(to: np, duration: 1.5)
         
         let vanish = SKAction.fadeAlpha(by: -1.0, duration: 0.1)
+        
+        gamegrid.setTile(X: qbertpos.0, Y: qbertpos.1, tile: gamegrid.empty)
         
         if left_side {
             disk_left?.run(SKAction.sequence([fly, vanish]))
@@ -123,14 +137,24 @@ class Tile {
     func generateTile(atPoint pos: CGPoint) {
         if let n = self.tile_yellow?.copy() as! SKSpriteNode? {
             n.position = pos
-            myScene!.addChild(n)
+            root!.addChild(n)
         }
     }
     
-    func generateAlternateTile(atPoint pos: CGPoint) {
+    func generateAlternateTile(atPoint pos: CGPoint, tile : Int) {
+        
+        if (tile == 2) {
         if let n = self.tile_blue?.copy() as! SKSpriteNode? {
             n.position = pos
-            myScene!.addChild(n)
+            root!.addChild(n)
+        }
+        }
+        else
+        {
+            if let n = self.tile_red?.copy() as! SKSpriteNode? {
+                n.position = pos
+                root!.addChild(n)
+        }
         }
     }
     

@@ -69,6 +69,7 @@ class GameScene: SKScene {
         Tiles = Tile(withScene: self)
         Tiles?.drawTiles()
         Grid = GameGrid()
+        Tiles?.removeTiles()
         TheSid = Sid(withScene: self)
         QBert = QbertClass(withScene: self)
         
@@ -123,17 +124,13 @@ class GameScene: SKScene {
                             NotificationCenter.default.post(notification)
                         }
                         
-                        let p = self.QBert?.getPosition()
-                        self.Grid!.setTile(X: p!.0, Y: p!.1, tile: 0) // erase the disk!
-                        
                         self.GameState = .flying
                         self.QBert?.flyingQbert()
                         if (score == "left") {
-                            self.Tiles?.flyingDisk(left_side : true)
+                            self.Tiles?.flyingDisk(left_side : true, qbertpos: (self.QBert?.getPosition())!)
                         }
-                        else
-                        {
-                            self.Tiles?.flyingDisk(left_side : false)
+                        else {
+                            self.Tiles?.flyingDisk(left_side : false, qbertpos: (self.QBert?.getPosition())!)
                         }
                         
                     }
@@ -221,12 +218,24 @@ class GameScene: SKScene {
         
     }
     
+    
+    
     func drawAlternateTile(X : Int, Y: Int)
     {
+        
         if Grid?.getTile(X: X, Y: Y) == 1 {
             Grid?.setTile(X: X, Y: Y, tile: 2)
             let p = Grid!.convertToScreenFromGrid(X: X, Y: Y)
-            Tiles!.generateAlternateTile(atPoint: CGPoint(x: p.x, y: p.y - 40))
+            Tiles!.generateAlternateTile(atPoint: CGPoint(x: p.x, y: p.y - 40), tile: 2)
+        }
+        else
+        {
+            if level == 3 {
+                Grid?.setTile(X: X, Y: Y, tile: 3)
+                let p = Grid!.convertToScreenFromGrid(X: X, Y: Y)
+                Tiles!.generateAlternateTile(atPoint: CGPoint(x: p.x, y: p.y - 40), tile: 3)
+            }
+            
         }
     }
     
