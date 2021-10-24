@@ -34,6 +34,15 @@ class QbertClass {
         
     }
     
+    func reset()
+    {
+        qbert_x = 6
+        qbert_y = 0
+        let p = gamegrid.convertToScreenFromGrid(X: qbert_x, Y: qbert_y)
+        qbert?.position = p
+        qbert?.texture = SKTexture(imageNamed: "qbert")
+    }
+    
     func flyingQbert()
     {
         let np = CGPoint(x: 0, y: 500)

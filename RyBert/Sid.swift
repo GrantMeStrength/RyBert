@@ -62,6 +62,9 @@ class Sid {
             let event = ["collision": "sid"]
             let notification = Notification(name: .gameEvent, object: nil, userInfo: event)
             NotificationCenter.default.post(notification)
+            
+            sid.y = 1
+            sid.x = 1
         }
         
         if sid.mode == false {
@@ -222,6 +225,22 @@ class Sid {
         sid.y = 0
         sid.c = -5
     }
+    
+    func resetPosition()
+    {
+        sid.y = 1
+        sid.x = (Int.random(in: 0...1) == 0) ? 5 : 7
+    }
+    
+    func reset()
+    {
+        sid.mode = false
+        sid.sprite.texture = sid_frames[0]
+        sid.sprite.isHidden = true
+        sid.c = -2
+       resetPosition()
+    }
+    
     
     func controlSid(qbert_position : (Int, Int))
     {

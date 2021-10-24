@@ -17,6 +17,7 @@ class Blob {
         var x : Int                     // game grid position
         var y : Int
         var c : Int                     // Internal counter to control state, delay drawing etc.
+        var speed : Int
     }
     
     private var master_blob : SKSpriteNode?
@@ -24,9 +25,9 @@ class Blob {
 
     
     private var blobs : [blob_type] = [
-        blob_type(active: true, sprite: SKSpriteNode(), x: 6,y: 0, c: -5),
-        blob_type(active: true, sprite: SKSpriteNode(), x: 6,y: 0, c : -6),
-        blob_type(active: true, sprite: SKSpriteNode(), x: 6,y: 0, c : -7)
+        blob_type(active: true, sprite: SKSpriteNode(), x: 1,y: 0, c: -5, speed: 1),
+        blob_type(active: true, sprite: SKSpriteNode(), x: 1,y: 0, c : -6, speed: 1),
+        blob_type(active: true, sprite: SKSpriteNode(), x: 1,y: 0, c : -7, speed: 1)
     ]
    
     private var gamegrid = GameGrid()
@@ -58,6 +59,28 @@ class Blob {
         
     }
     
+    func reset(level : Int){
+        
+        for b in 0...2 {
+                blobs[b].sprite.isHidden = true
+                blobs[b].active = false
+                blobs[b].c = -4 + b*2
+            }
+        
+        
+        switch level {
+            
+        case 1: blobs[0].active =  true; blobs[1].active =  true; blobs[0].speed = 1; blobs[1].speed = 1;
+        case 2: blobs[0].active =  true; blobs[1].active =  true; blobs[0].speed = 1; blobs[1].speed = 1;
+        case 3: blobs[0].active =  true; blobs[1].active =  true; blobs[2].active =  true; blobs[0].speed = 1; blobs[1].speed = 1; blobs[2].speed = 1;
+        default: blobs[0].active =  true; blobs[1].active =  true; blobs[2].active =  true; blobs[0].speed = 1; blobs[1].speed = 1; blobs[2].speed = 2;
+            
+            
+        }
+        
+      
+    }
+    
     func blobStep(b : Int)
     {
         // Step a blob down a step
@@ -68,9 +91,7 @@ class Blob {
         }
         
         blobs[b].y = blobs[b].y + 1
-        //let direction = Int.random(in: 0...1) // 0 or 1
-        //var dx = -1
-        //if direction == 1 { dx = 1}
+       
         
         let dx = (Int.random(in: 0...1) == 0) ? -1 : 1
         blobs[b].x  =  blobs[b].x  + dx
@@ -102,6 +123,7 @@ class Blob {
     {
         // Drop a blob onto the top of the game grid
         blobs[b].sprite.isHidden = false
+        blobs[b].active = true
         blobs[b].x = (Int.random(in: 0...1) == 0) ? 5 : 7
         blobs[b].sprite.position = gamegrid.convertToScreenFromGrid(X: blobs[b].x, Y: -5)
         blobs[b].y = 1
@@ -112,6 +134,8 @@ class Blob {
     func blobDisappear(b : Int)
     {
         // Fall the blob off the game grid
+        
+        blobs[b].active = false
         
         let dx = (Int.random(in: 0...1) == 0) ? -1 : 1
         

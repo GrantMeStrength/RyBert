@@ -18,7 +18,7 @@ class GameScene: SKScene {
     
     
     
-    private let level = 1
+    private var level = 1
     private var lives = 3
     private var score = 0
     private var level_count = 0
@@ -41,10 +41,12 @@ class GameScene: SKScene {
         case died
         case levelcomplete
         case flying
+        case gameover
     }
     
     
     private var GameState : gameState = .getready
+    private var GameStateCounter = 0
     
     override func didMove(to view: SKView) {
         
@@ -94,12 +96,13 @@ class GameScene: SKScene {
                         self.GameState = .died
                     }
                     
-                    if name == "collision" && self.GameState != .flying
+                    if name == "collision" && self.GameState == .action
                     {
                         let p = self.QBert!.getSpritePosition()
                         self.rude?.position = CGPoint(x: p.x, y: p.y + 64)
                         self.rude?.isHidden = false
                         self.GameState = .died
+                        //self.QBert!.setPosition(X: 1, Y: 1)
                     }
                     
                     if name == "Tile" {
@@ -115,7 +118,13 @@ class GameScene: SKScene {
                         
                         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                             self.GameState = .action
+                            let event = ["Tile": "fly"]
+                            let notification = Notification(name: .gameEvent, object: nil, userInfo: event)
+                            NotificationCenter.default.post(notification)
                         }
+                        
+                        let p = self.QBert?.getPosition()
+                        self.Grid!.setTile(X: p!.0, Y: p!.1, tile: 0) // erase the disk!
                         
                         self.GameState = .flying
                         self.QBert?.flyingQbert()
@@ -148,20 +157,63 @@ class GameScene: SKScene {
                 print(GameState)
             case .gamestart:
                 print(GameState)
+                lives = 3
+                level = 1
             case .levelstart:
-                print(GameState)
+              //  Blobs!.reset(level: level)
+                QBert!.reset()
+              //  TheSid!.reset()
+                liveslabel?.text = "Level start!"
+                GameState = .getready
             case .getready:
+                if GameStateCounter == 0
+                {
+                rude?.isHidden = true
+                Blobs!.reset(level: level)
+                TheSid!.reset()
                 liveslabel?.text = "Get Ready"
+                }
+                GameStateCounter = GameStateCounter + 1
+                if GameStateCounter == 4 {
+                    GameState = .action
+                    GameStateCounter = 0
+                }
             case .action:
                 liveslabel?.text = "Action"
                 TheSid!.controlSid(qbert_position: (QBert?.getPosition())!)
-                Blobs!.controlBlobs(qbert_position: (QBert?.getPosition())!)
+            //    Blobs!.controlBlobs(qbert_position: (QBert?.getPosition())!)
+                GameStateCounter = 0
             case .died:
+                if GameStateCounter == 0
+                {
+                print("Died")
+                TheSid!.resetPosition()
                 liveslabel?.text = "Fuck it"
+                lives = lives - 1
+                liveslabel?.text = "Lives: " + String(lives)
+                }
+                GameStateCounter = GameStateCounter + 1
+                if GameStateCounter == 4 {
+                    
+                    if lives == 0 {
+                        GameState = .gameover
+                    }
+                    else
+                    {
+                        GameState = .getready
+                        
+                    }
+                    GameStateCounter = 0
+                }
+               
             case .levelcomplete:
                 print(GameState)
             case .flying:
                 liveslabel?.text = "Wheeeeee!"
+                
+            case .gameover:
+                liveslabel?.text = "Game Over"
+                
             }
             
             
