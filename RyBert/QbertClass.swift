@@ -217,11 +217,11 @@ class QbertClass {
                 if self.gamegrid.getTile(X: self.qbert_x, Y: self.qbert_y) == self.gamegrid.diskLeft {
                     
                     // Flying disk!
-                    
+                    self.gamegrid.setTile(X: self.qbert_x, Y: self.qbert_y, tile : 0)
                     let event = ["Disk": "left"]
                     let notification = Notification(name: .gameEvent, object: nil, userInfo: event)
                     NotificationCenter.default.post(notification)
-                    self.gamegrid.setTile(X: self.qbert_x, Y: self.qbert_y, tile : 0)
+                   
                     
                     
                 }
@@ -229,11 +229,15 @@ class QbertClass {
                 if self.gamegrid.getTile(X: self.qbert_x, Y: self.qbert_y) == self.gamegrid.diskRight {
                     
                     // Flying disk!
+                    self.gamegrid.setTile(X: self.qbert_x, Y: self.qbert_y, tile : 0)
+                    
+                    print("Right desk, setting to empty")
+                    print(self.gamegrid.getTile(X: self.qbert_x, Y: self.qbert_y))
                     
                     let event = ["Disk": "right"]
                     let notification = Notification(name: .gameEvent, object: nil, userInfo: event)
                     NotificationCenter.default.post(notification)
-                    self.gamegrid.setTile(X: self.qbert_x, Y: self.qbert_y, tile : 0)
+                    
                     
                 }
                 
