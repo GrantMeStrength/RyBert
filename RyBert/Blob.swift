@@ -48,6 +48,9 @@ class Blob {
     blobs[1].sprite = (self.master_blob?.copy() as! SKSpriteNode?)!
     blobs[2].sprite = (self.master_blob?.copy() as! SKSpriteNode?)!
     
+        blobs[0].sprite.isHidden = true
+        blobs[1].sprite.isHidden = true
+        blobs[2].sprite.isHidden = true
 
     theScene.addChild(blobs[0].sprite)
     theScene.addChild(blobs[1].sprite)
@@ -96,7 +99,7 @@ class Blob {
     func blobAppear(b : Int)
     {
         // Drop a blob onto the top of the game grid
-        
+        blobs[b].sprite.isHidden = false
         blobs[b].sprite.position = CGPoint(x: 0, y: 500)
         blobs[b].sprite.isHidden = false
         blobs[b].x = 6

@@ -13,10 +13,10 @@ class GameScene: SKScene {
     private var label : SKLabelNode?
     private var liveslabel : SKLabelNode?
     private var rude : SKSpriteNode?
-  
+    
     private var ticks = 0
     
-
+    
     
     private let level = 1
     private var lives = 3
@@ -40,8 +40,9 @@ class GameScene: SKScene {
         case action
         case died
         case levelcomplete
+        case flying
     }
-
+    
     
     private var GameState : gameState = .getready
     
@@ -78,46 +79,63 @@ class GameScene: SKScene {
             
         }
         
-
+        
         // Add notification system
-               
+        
         NotificationCenter.default.addObserver(forName: .gameEvent, object: nil, queue: nil) {(notification) in
-                   
-                 
-            if let data = notification.userInfo as? [String: String] {
             
-                   for (name, score) in data {
-                       
-                       if  name == "fall"
-                       {
-                           self.GameState = .died
-                       }
-                       
-                       if name == "collision"
-                       {
-                           let p = self.QBert!.getSpritePosition()
-                           self.rude?.position = CGPoint(x: p.x, y: p.y + 64)
-                           self.rude?.isHidden = false
-                           self.GameState = .died
-                       }
-                       
-                       if name == "Tile" {
-                           
-                           let p = self.QBert?.getPosition()
-                           self.drawAlternateTile(X: p!.0, Y: p!.1)
-                            self.level_count = self.level_count + 1
-                            self.score = self.score + 25
-                            self.label?.text = "Score: " + String(self.score)
-                       }
-                       
-                       
-                       print("\(name) went and \(score) !")
-                   }
-               }
-                  
-               }
-              
-
+            
+            if let data = notification.userInfo as? [String: String] {
+                
+                for (name, score) in data {
+                    
+                    if  name == "fall"
+                    {
+                        self.GameState = .died
+                    }
+                    
+                    if name == "collision" && self.GameState != .flying
+                    {
+                        let p = self.QBert!.getSpritePosition()
+                        self.rude?.position = CGPoint(x: p.x, y: p.y + 64)
+                        self.rude?.isHidden = false
+                        self.GameState = .died
+                    }
+                    
+                    if name == "Tile" {
+                        
+                        let p = self.QBert?.getPosition()
+                        self.drawAlternateTile(X: p!.0, Y: p!.1)
+                        self.level_count = self.level_count + 1
+                        self.score = self.score + 25
+                        self.label?.text = "Score: " + String(self.score)
+                    }
+                    
+                    if name == "Disk" {
+                        
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                            self.GameState = .action
+                        }
+                        
+                        self.GameState = .flying
+                        self.QBert?.flyingQbert()
+                        if (score == "left") {
+                            self.Tiles?.flyingDisk(left_side : true)
+                        }
+                        else
+                        {
+                            self.Tiles?.flyingDisk(left_side : false)
+                        }
+                        
+                    }
+                    
+                    print("\(name) went and \(score) !")
+                }
+            }
+            
+        }
+        
+        
         
         let _ = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [self] timer in
             
@@ -139,16 +157,18 @@ class GameScene: SKScene {
                 TheSid!.controlSid(qbert_position: (QBert?.getPosition())!)
                 Blobs!.controlBlobs(qbert_position: (QBert?.getPosition())!)
             case .died:
-                print(GameState)
+                liveslabel?.text = "Fuck it"
             case .levelcomplete:
                 print(GameState)
+            case .flying:
+                liveslabel?.text = "Wheeeeee!"
             }
             
-           
+            
         }
         
     }
- 
+    
     func drawAlternateTile(X : Int, Y: Int)
     {
         if Grid?.getTile(X: X, Y: Y) == 1 {
@@ -158,34 +178,33 @@ class GameScene: SKScene {
         }
     }
     
-
-
+    
+    
     
     func touchDown(atPoint pos : CGPoint) {
-       
-        QBert?.moveQbert(tap: pos)
         
+        // Can only move Qbert 
+        if self.GameState == .getready || self.GameState == .action {
+            QBert?.moveQbert(tap: pos)
+        }
         // Baddies won't appear until the player first moves..
+        
         if GameState == .getready {
             GameState = .action
         }
-    
+        
     }
     
     func touchMoved(toPoint pos : CGPoint) {
-      
+        
     }
     
     func touchUp(atPoint pos : CGPoint) {
-      
+        
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        //if let label = self.label {
-            //label.run(SKAction.init(named: "Pulse")!, withKey: "fadeInOut")
-            //label.text = "Score: " + String(score)
-        //}
-        
+      
         for t in touches { self.touchDown(atPoint: t.location(in: self)) }
     }
     

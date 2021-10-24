@@ -102,6 +102,22 @@ class Tile {
     }
 
     
+    func flyingDisk( left_side : Bool)
+    {
+        let np = CGPoint(x: 0, y: 500-24)
+        let fly = SKAction.move(to: np, duration: 1.5)
+        
+        let vanish = SKAction.fadeAlpha(by: -1.0, duration: 0.1)
+        
+        if left_side {
+            disk_left?.run(SKAction.sequence([fly, vanish]))
+        }
+        else
+        {
+            disk_right?.run(SKAction.sequence([fly, vanish]))
+        }
+     
+    }
     
     
     func generateTile(atPoint pos: CGPoint) {

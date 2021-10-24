@@ -26,26 +26,27 @@ class Sid {
     
     
     init(withScene theScene: SKScene) {
-    
-    // Create Sid
+        
+        // Create Sid
         buildSid()
         myScene = theScene
         sid.sprite =  SKSpriteNode(texture: sid_frames[0])
         sid.sprite.size = CGSize(width: 48, height: 48)
         sid.sprite.zPosition = 3
+        sid.sprite.isHidden = true
         myScene?.addChild(sid.sprite)
     }
     
     
     func buildSid() {
-      let sidAtlas = SKTextureAtlas(named: "sid")
-      var spinFrames: [SKTexture] = []
-
-      let numImages = sidAtlas.textureNames.count
-      for i in 1...numImages {
-        let diskTextureName = "sid\(i)"
-        spinFrames.append(sidAtlas.textureNamed(diskTextureName))
-      }
+        let sidAtlas = SKTextureAtlas(named: "sid")
+        var spinFrames: [SKTexture] = []
+        
+        let numImages = sidAtlas.textureNames.count
+        for i in 1...numImages {
+            let diskTextureName = "sid\(i)"
+            spinFrames.append(sidAtlas.textureNamed(diskTextureName))
+        }
         sid_frames = spinFrames
     }
     
@@ -53,6 +54,8 @@ class Sid {
     func sidStep(QX: Int, QY: Int)
     {
         // Step a blob down a step
+        
+        sid.sprite.isHidden = false
         
         if (QX == sid.x && QY == sid.y)
         {
@@ -62,40 +65,40 @@ class Sid {
         }
         
         if sid.mode == false {
-        
-        sid.y = sid.y + 1
-        let direction = Int.random(in: 0...1) // 0 or 1
-        var dx = -1
-        if direction == 1 { dx = 1}
-        sid.x  =  sid.x  + dx
-        
-        //1. Enlongate and jump up a little, and to the side
-        
-        let jump1 = SKAction.moveBy(x: CGFloat(dx*16), y: 32.0, duration: 0.2)
-        let jump2 = SKAction.resize(toHeight: 56, duration: 0.2)
-        let jump = SKAction.group([jump1, jump2])
-        
-        //2. Shrink to normal at new location
             
-        let drop1 = SKAction.move(to: gamegrid.convertToScreenFromGrid(X: sid.x, Y: sid.y), duration: 0.2)
-        let drop2 = SKAction.resize(toHeight: 34, duration: 0.2)
-        let drop = SKAction.group([drop1, drop2])
-        
-        
-        //3. Compress a little and then return to normal
-        
-        let rebound = SKAction.resize(toHeight: 40, duration: 0.2)
-        sid.sprite.run(SKAction.sequence([jump, drop, rebound]))
+            sid.y = sid.y + 1
+            let direction = Int.random(in: 0...1) // 0 or 1
+            var dx = -1
+            if direction == 1 { dx = 1}
+            sid.x  =  sid.x  + dx
+            
+            //1. Enlongate and jump up a little, and to the side
+            
+            let jump1 = SKAction.moveBy(x: CGFloat(dx*16), y: 32.0, duration: 0.2)
+            let jump2 = SKAction.resize(toHeight: 56, duration: 0.2)
+            let jump = SKAction.group([jump1, jump2])
+            
+            //2. Shrink to normal at new location
+            
+            let drop1 = SKAction.move(to: gamegrid.convertToScreenFromGrid(X: sid.x, Y: sid.y), duration: 0.2)
+            let drop2 = SKAction.resize(toHeight: 34, duration: 0.2)
+            let drop = SKAction.group([drop1, drop2])
+            
+            
+            //3. Compress a little and then return to normal
+            
+            let rebound = SKAction.resize(toHeight: 40, duration: 0.2)
+            sid.sprite.run(SKAction.sequence([jump, drop, rebound]))
             
             // 4. If Sid is at bottom row, he changes to a snake
             
             if sid.y == 6 {
                 sid.mode = true
                 sid.c = 1
-              
+                
             }
             
-    }
+        }
         else
         {
             
@@ -110,7 +113,7 @@ class Sid {
             }
             
             if (sid.c > 10)  {
-               
+                
                 sid.c = 7
                 
                 var dx = -1
@@ -153,7 +156,7 @@ class Sid {
                 let jump = SKAction.group([jump1, jump2])
                 
                 //2. Shrink to normal at new location
-                    
+                
                 let drop1 = SKAction.move(to: gamegrid.convertToScreenFromGrid(X: sid.x, Y: sid.y), duration: 0.2)
                 let drop2 = SKAction.resize(toHeight: 48, duration: 0.2)
                 let drop = SKAction.group([drop1, drop2])
@@ -163,19 +166,19 @@ class Sid {
                 
                 let rebound = SKAction.resize(toHeight: 64, duration: 0.2)
                 sid.sprite.run(SKAction.sequence([jump, drop, rebound]))
-                    
                 
                 
                 
-               // sid.sprite.run(SKAction.move(to: gamegrid.convertToScreenFromGrid(X: sid.x, Y: sid.y), duration: 0.2))
+                
+                // sid.sprite.run(SKAction.move(to: gamegrid.convertToScreenFromGrid(X: sid.x, Y: sid.y), duration: 0.2))
                 
             }
             
             
         }
         
-      
-       
+        
+        
     }
     
     
@@ -219,30 +222,30 @@ class Sid {
     
     func controlSid(qbert_position : (Int, Int))
     {
-            if sid.active == false {
-                sid.sprite.isHidden = true
-            }
-            else {
+        if sid.active == false {
+            sid.sprite.isHidden = true
+        }
+        else {
             
-                sid.c = sid.c + 1
+            sid.c = sid.c + 1
             
             if  sid.c < 0
             {
                 sid.sprite.isHidden = true
             }
             else
-            if  sid.c == 0
+                if  sid.c == 0
             {
-                
-                sidAppear()
-            }
+                    
+                    sidAppear()
+                }
             else
                 if sid.c > 0
             {
                     sidStep(QX: qbert_position.0, QY: qbert_position.1)
                 }
             
-            }
+        }
     }
 }
 
