@@ -11,15 +11,12 @@ import GameplayKit
 class GameScene: SKScene {
     
     private var label : SKLabelNode?
-    
+    private var liveslabel : SKLabelNode?
+    private var rude : SKSpriteNode?
   
     private var ticks = 0
     
-    private var jumpCounter = 0
-    
-    private var qbert : SKSpriteNode?
-    private var qbert_x = 6
-    private var qbert_y = 0
+
     
     private let level = 1
     private var lives = 3
@@ -30,6 +27,8 @@ class GameScene: SKScene {
     private var Tiles : Tile?
     private var Grid : GameGrid?
     private var TheSid : Sid?
+    private var QBert : QbertClass?
+    
     
     
     enum gameState {
@@ -44,7 +43,7 @@ class GameScene: SKScene {
     }
 
     
-    private var GameState : gameState = .attract
+    private var GameState : gameState = .getready
     
     override func didMove(to view: SKView) {
         
@@ -56,20 +55,27 @@ class GameScene: SKScene {
             label.text = "Score: " + String(score)
         }
         
+        self.liveslabel = self.childNode(withName: "//livesLabel") as? SKLabelNode
+        if let liveslabel = self.liveslabel {
+            liveslabel.alpha = 0.0
+            liveslabel.run(SKAction.fadeIn(withDuration: 2.0))
+            liveslabel.text = "Lives: " + String(score)
+        }
+        
         Blobs = Blob(withScene: self)
         Tiles = Tile(withScene: self)
         Tiles?.drawTiles()
         Grid = GameGrid()
         TheSid = Sid(withScene: self)
+        QBert = QbertClass(withScene: self)
         
-        // Create qbert
-        
-        self.qbert = SKSpriteNode(imageNamed: "qbert")
-        if let qbert = qbert {
-            qbert.size = CGSize(width: 64, height: 64)
-            qbert.zPosition = 3
-            qbert.position = Grid!.convertToScreenFromGrid(X: qbert_x, Y: qbert_y)
-            self.addChild(qbert)
+        self.rude = SKSpriteNode(imageNamed: "rude")
+        if let rude = rude {
+            rude.size = CGSize(width: 348/2, height: 172/2)
+            rude.zPosition = 6
+            rude.isHidden = true
+            self.addChild(rude)
+            
         }
         
 
@@ -81,6 +87,30 @@ class GameScene: SKScene {
             if let data = notification.userInfo as? [String: String] {
             
                    for (name, score) in data {
+                       
+                       if  name == "fall"
+                       {
+                           self.GameState = .died
+                       }
+                       
+                       if name == "collision"
+                       {
+                           let p = self.QBert!.getSpritePosition()
+                           self.rude?.position = CGPoint(x: p.x, y: p.y + 64)
+                           self.rude?.isHidden = false
+                           self.GameState = .died
+                       }
+                       
+                       if name == "Tile" {
+                           
+                           let p = self.QBert?.getPosition()
+                           self.drawAlternateTile(X: p!.0, Y: p!.1)
+                            self.level_count = self.level_count + 1
+                            self.score = self.score + 25
+                            self.label?.text = "Score: " + String(self.score)
+                       }
+                       
+                       
                        print("\(name) went and \(score) !")
                    }
                }
@@ -88,9 +118,6 @@ class GameScene: SKScene {
                }
               
 
-
-       
-       
         
         let _ = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [self] timer in
             
@@ -98,8 +125,26 @@ class GameScene: SKScene {
             
             if ticks == 4 { ticks = 0}
             
-            TheSid!.controlSid(QX : qbert_x, QY: qbert_y)
-            Blobs!.controlBlobs(QX : qbert_x, QY: qbert_y)
+            switch GameState {
+            case .attract:
+                print(GameState)
+            case .gamestart:
+                print(GameState)
+            case .levelstart:
+                print(GameState)
+            case .getready:
+                liveslabel?.text = "Get Ready"
+            case .action:
+                liveslabel?.text = "Action"
+                TheSid!.controlSid(qbert_position: (QBert?.getPosition())!)
+                Blobs!.controlBlobs(qbert_position: (QBert?.getPosition())!)
+            case .died:
+                print(GameState)
+            case .levelcomplete:
+                print(GameState)
+            }
+            
+           
         }
         
     }
@@ -118,178 +163,12 @@ class GameScene: SKScene {
     
     func touchDown(atPoint pos : CGPoint) {
        
-    
-        if jumpCounter != 0  { return }
+        QBert?.moveQbert(tap: pos)
         
-        // Map current player position to screen
-        
-      //  let p = convertToScreenFromGrid(X: qbert_x, Y: qbert_y)
-        
-        let p = CGPoint(x: 0, y: 0 )
-        
-        // Use tap co-ords to see which direction the player wants to jump
-        
-      
-     
-        let h = pos.x - p.x
-        let v = pos.y - p.y
-        
-        var height : CGFloat = 0
-        var side : CGFloat = 0
-        
-        if (h > 0 && v > 0)
-        {
-             
-            qbert_x = qbert_x + 1
-            qbert_y = qbert_y - 1
-            
-            height = 128
-            side = 16
-            
-            qbert?.texture = SKTexture(imageNamed: "qbertRU")
-          
-            
+        // Baddies won't appear until the player first moves..
+        if GameState == .getready {
+            GameState = .action
         }
-        
-        if (h > 0 && v < 0)
-        {
-             
-            qbert_x = qbert_x + 1
-            qbert_y = qbert_y + 1
-            
-            height = 32
-            side = 16
-          
-            qbert?.texture = SKTexture(imageNamed: "qbertR")
-          
-            
-        }
-        
-        if (h < 0 && v > 0)
-        {
-              
-            qbert_x = qbert_x - 1
-            qbert_y = qbert_y - 1
-            
-            height = 128
-            side = -16
-            
-            qbert?.texture = SKTexture(imageNamed: "qbertLU")
-          
-            
-        }
-        
-        if (h < 0 && v < 0)
-        {
-             
-            qbert_x = qbert_x - 1
-            qbert_y = qbert_y + 1
-           
-            height = 32
-            side = -16
-            
-            qbert?.texture = SKTexture(imageNamed: "qbert")
-          
-            
-        }
-        
-        
-        // Check for fall
-        
-        var fall = false
-        
-        if qbert_x < 0 || qbert_x > 12 || qbert_y < 0 || qbert_y > 6
-        {
-            fall = true
-        }
-        else
-        {
-            if Grid!.getTile(X: qbert_x, Y: qbert_y) == 0 {
-                fall = true
-            }
-        }
-        
-        jumpCounter = 1
-        
-        let jump1 = SKAction.moveBy(x: side, y: height, duration: 0.2)
-        let jump2 = SKAction.resize(toHeight: 72, duration: 0.2)
-        let jumpA = SKAction.group([jump1, jump2])
-        
-        let np = Grid!.convertToScreenFromGrid(X: qbert_x, Y: qbert_y)
-        
-        let jump3 = SKAction.move(to: np, duration: 0.2)
-        let jump4 = SKAction.resize(toHeight: 58, duration: 0.2)
-        let jump5 = SKAction.resize(toHeight: 64, duration: 0.2)
-        
-        let jumpB = SKAction.group([jump3, jump4])
-        
-       
-        
-        if fall
-        {
-            let jump = SKAction.sequence([jumpA, jumpB])
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                self.qbert?.zPosition = -1
-            }
-            
-            let fall = SKAction.moveTo(y:-700, duration: 0.4)
-            qbert?.run(SKAction.sequence([jump, fall]))
-            
-            
-            let event = ["Qbery": "Fall"]
-            let notification = Notification(name: .gameEvent, object: nil, userInfo: event)
-            NotificationCenter.default.post(notification)
-            
-        }
-        else
-        {
-            // Ok!
-            // Change tile color a split second later if it hasn't already been changed
-            
-            let jump = SKAction.sequence([jumpA, jumpB, jump5])
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                
-                if self.Grid?.getTile(X: self.qbert_x, Y: self.qbert_y) == 1 {
-                    
-                   
-                    self.drawAlternateTile(X: self.qbert_x, Y: self.qbert_y)
-                    self.level_count = self.level_count + 1
-                    self.score = self.score + 25
-                    self.label?.text = "Score: " + String(self.score)
-                }
-                
-                if self.Grid?.getTile(X: self.qbert_x, Y: self.qbert_y) == self.Grid?.diskLeft {
-               
-                    // Flying disk!
-                   
-                        let event = ["Disk": "Left"]
-                        let notification = Notification(name: .gameEvent, object: nil, userInfo: event)
-                        NotificationCenter.default.post(notification)
-                    
-                    
-                }
-                
-                if self.Grid?.getTile(X: self.qbert_x, Y: self.qbert_y) == self.Grid?.diskRight {
-               
-                    // Flying disk!
-                   
-                        let event = ["Disk": "Right"]
-                        let notification = Notification(name: .gameEvent, object: nil, userInfo: event)
-                        NotificationCenter.default.post(notification)
-                
-                }
-                
-               
-                self.jumpCounter = 0
-            }
-            
-
-            qbert?.run(jump)
-        }
-        
-            
     
     }
     
@@ -302,10 +181,10 @@ class GameScene: SKScene {
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if let label = self.label {
+        //if let label = self.label {
             //label.run(SKAction.init(named: "Pulse")!, withKey: "fadeInOut")
             //label.text = "Score: " + String(score)
-        }
+        //}
         
         for t in touches { self.touchDown(atPoint: t.location(in: self)) }
     }

@@ -129,7 +129,7 @@ class Blob {
         blobs[b].c = -5
     }
     
-    func controlBlobs(QX: Int, QY: Int)
+    func controlBlobs(qbert_position : (Int, Int))
     {
         for b in 0...2 {
             
@@ -138,6 +138,14 @@ class Blob {
                 
             }
             else {
+                
+                if (qbert_position.0 == blobs[b].x && qbert_position.1 == blobs[b].y)
+                {
+                    let event = ["collision": "blob"]
+                    let notification = Notification(name: .gameEvent, object: nil, userInfo: event)
+                    NotificationCenter.default.post(notification)
+                    return // no need to animate - blob has done its worst
+                }
             
             blobs[b].c = blobs[b].c + 1
             
@@ -156,12 +164,7 @@ class Blob {
             {
                     blobStep(b: b)
                     
-                    if (QX == blobs[b].x && QY == blobs[b].y)
-                    {
-                        let event = ["Blob": "Died"]
-                        let notification = Notification(name: .gameEvent, object: nil, userInfo: event)
-                        NotificationCenter.default.post(notification)
-                    }
+                   
                     
                 }
             

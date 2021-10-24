@@ -56,7 +56,7 @@ class Sid {
         
         if (QX == sid.x && QY == sid.y)
         {
-            let event = ["Sid": "Died"]
+            let event = ["collision": "sid"]
             let notification = Notification(name: .gameEvent, object: nil, userInfo: event)
             NotificationCenter.default.post(notification)
         }
@@ -217,7 +217,7 @@ class Sid {
         sid.c = -5
     }
     
-    func controlSid(QX: Int, QY: Int)
+    func controlSid(qbert_position : (Int, Int))
     {
             if sid.active == false {
                 sid.sprite.isHidden = true
@@ -239,7 +239,7 @@ class Sid {
             else
                 if sid.c > 0
             {
-                    sidStep(QX: QX, QY: QY)
+                    sidStep(QX: qbert_position.0, QY: qbert_position.1)
                 }
             
             }
