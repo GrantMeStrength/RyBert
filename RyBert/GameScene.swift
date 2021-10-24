@@ -73,7 +73,7 @@ class GameScene: SKScene {
         self.rude = SKSpriteNode(imageNamed: "rude")
         if let rude = rude {
             rude.size = CGSize(width: 348/2, height: 172/2)
-            rude.zPosition = 6
+            rude.zPosition = 3
             rude.isHidden = true
             self.addChild(rude)
             

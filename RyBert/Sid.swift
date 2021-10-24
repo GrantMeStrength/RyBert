@@ -20,7 +20,7 @@ class Sid {
     }
     
     private var sid_frames : [SKTexture] = []
-    private var sid = sid_type(active: true, sprite: SKSpriteNode(), x: 6,y: 0, c: -9, mode: false)
+    private var sid = sid_type(active: true, sprite: SKSpriteNode(), x: 6,y: 0, c: -3, mode: false)
     private var gamegrid = GameGrid()
     private var myScene : SKScene?
     
@@ -188,10 +188,13 @@ class Sid {
     {
         // Drop a blob onto the top of the game grid
         
-        sid.sprite.position = CGPoint(x: 0, y: 500)
+        sid.x = (Int.random(in: 0...1) == 0) ? 5 : 7
+        sid.sprite.position = gamegrid.convertToScreenFromGrid(X: sid.x, Y: -5)
+        
+        //sid.sprite.position = CGPoint(x: 0, y: 500)
         sid.sprite.isHidden = false
-        sid.x = 6
-        sid.y = 0
+        //sid.x = 6
+        sid.y = 1
         let moveAction = SKAction.move(to: gamegrid.convertToScreenFromGrid(X: sid.x, Y: sid.y), duration: 0.2)
         sid.sprite.run(moveAction)
     }
@@ -236,7 +239,6 @@ class Sid {
             else
                 if  sid.c == 0
             {
-                    
                     sidAppear()
                 }
             else

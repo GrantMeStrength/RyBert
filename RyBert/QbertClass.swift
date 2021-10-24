@@ -25,7 +25,7 @@ class QbertClass {
         self.qbert = SKSpriteNode(imageNamed: "qbert")
         if let qbert = qbert {
             qbert.size = CGSize(width: 64, height: 64)
-            qbert.zPosition = 3
+            qbert.zPosition = 4
             qbert.position = gamegrid.convertToScreenFromGrid(X: qbert_x, Y: qbert_y)
             myScene?.addChild(qbert)
             

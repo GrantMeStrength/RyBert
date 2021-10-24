@@ -68,9 +68,11 @@ class Blob {
         }
         
         blobs[b].y = blobs[b].y + 1
-        let direction = Int.random(in: 0...1) // 0 or 1
-        var dx = -1
-        if direction == 1 { dx = 1}
+        //let direction = Int.random(in: 0...1) // 0 or 1
+        //var dx = -1
+        //if direction == 1 { dx = 1}
+        
+        let dx = (Int.random(in: 0...1) == 0) ? -1 : 1
         blobs[b].x  =  blobs[b].x  + dx
         
         //1. Enlongate and jump up a little, and to the side
@@ -100,10 +102,9 @@ class Blob {
     {
         // Drop a blob onto the top of the game grid
         blobs[b].sprite.isHidden = false
-        blobs[b].sprite.position = CGPoint(x: 0, y: 500)
-        blobs[b].sprite.isHidden = false
-        blobs[b].x = 6
-        blobs[b].y = 0
+        blobs[b].x = (Int.random(in: 0...1) == 0) ? 5 : 7
+        blobs[b].sprite.position = gamegrid.convertToScreenFromGrid(X: blobs[b].x, Y: -5)
+        blobs[b].y = 1
         let moveAction = SKAction.move(to: gamegrid.convertToScreenFromGrid(X: blobs[b].x, Y: blobs[b].y), duration: 0.2)
         blobs[b].sprite.run(moveAction)
     }
@@ -112,9 +113,7 @@ class Blob {
     {
         // Fall the blob off the game grid
         
-        let direction = Int.random(in: 0...1) // 0 or 1
-        var dx = -1
-        if direction == 1 { dx = 1}
+        let dx = (Int.random(in: 0...1) == 0) ? -1 : 1
         
         let jump1 = SKAction.moveBy(x: CGFloat(dx*16), y: 32.0, duration: 0.2)
         let jump2 = SKAction.resize(toHeight: 56, duration: 0.2)
@@ -127,8 +126,8 @@ class Blob {
         
         blobs[b].sprite.run(SKAction.sequence([jump, drop]))
         
-        blobs[b].x = 6
-        blobs[b].y = 0
+       // blobs[b].x = (Int.random(in: 0...1) == 0) ? 5 : 7
+        blobs[b].y = 1
         blobs[b].c = -5
     }
     
