@@ -101,6 +101,43 @@ class Tile {
         root!.removeAllActions()
     }
     
+    func flashTiles()
+    {
+        let rotate1 = SKAction.rotate(byAngle: 45, duration: 0.1)
+        let rotate2 = SKAction.rotate(toAngle: 0, duration: 0.1)
+        let color1 = SKAction.colorize(with: UIColor(red: 1.0, green: 0.1, blue: 0.1, alpha: 1.0), colorBlendFactor: 1, duration: 0.2)
+        let color2 = SKAction.colorize(with: UIColor(red: 0.1, green: 1.0, blue: 0.1, alpha: 1.0), colorBlendFactor: 1, duration: 0.2)
+        let color3 = SKAction.colorize(with: UIColor(red: 0.1, green: 0.1, blue: 1.0, alpha: 1.0), colorBlendFactor: 1, duration: 0.2)
+        let color0 = SKAction.colorize(with: UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0), colorBlendFactor: 1, duration: 0.2)
+       
+        let s1 = SKAction.group([color1, rotate1])
+        let s2 = SKAction.group([color2, rotate1])
+        let s3 = SKAction.group([color3, rotate1])
+                                                        
+            
+        for tile in root!.children {
+            
+            tile.run(SKAction.sequence([s1, s2, s3]))
+        
+            
+        }
+        
+       
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            for tile in self.root!.children {
+               
+                 tile.run(rotate2)
+                tile.run(color0)
+                
+            
+        
+            }
+        }
+        
+        
+    }
+    
+    
     func buildDisk() {
       let diskAtlas = SKTextureAtlas(named: "disk")
       var spinFrames: [SKTexture] = []

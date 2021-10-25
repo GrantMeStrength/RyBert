@@ -65,6 +65,8 @@ class Sid {
             
             sid.y = 1
             sid.x = 1
+            
+            return
         }
         
         if sid.mode == false {

@@ -41,6 +41,8 @@ class QbertClass {
         let p = gamegrid.convertToScreenFromGrid(X: qbert_x, Y: qbert_y)
         qbert?.position = p
         qbert?.texture = SKTexture(imageNamed: "qbert")
+        qbert?.zPosition = 4
+        jumpCounter = 0 
     }
     
     func flyingQbert()
@@ -195,6 +197,10 @@ class QbertClass {
             let event = ["fall": "qbert"]
             let notification = Notification(name: .gameEvent, object: nil, userInfo: event)
             NotificationCenter.default.post(notification)
+            
+            // Reset to top
+            qbert_x = 6
+            qbert_y = 0
             
         }
         else

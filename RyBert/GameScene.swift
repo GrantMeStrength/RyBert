@@ -95,6 +95,10 @@ class GameScene: SKScene {
                     if  name == "fall"
                     {
                         self.GameState = .died
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                            self.QBert!.reset()
+                            
+                        }
                     }
                     
                     if name == "collision" && self.GameState == .action
@@ -185,7 +189,6 @@ class GameScene: SKScene {
                 {
                 print("Died")
                 TheSid!.resetPosition()
-                liveslabel?.text = "Fuck it"
                 lives = lives - 1
                 liveslabel?.text = "Lives: " + String(lives)
                 }
@@ -198,12 +201,24 @@ class GameScene: SKScene {
                     else
                     {
                         GameState = .getready
-                        
                     }
                     GameStateCounter = 0
                 }
                
             case .levelcomplete:
+                if (GameStateCounter == 0) {
+                Tiles?.flashTiles()
+                }
+                else
+                {
+                    GameStateCounter = GameStateCounter + 1
+                    if GameStateCounter > 5
+                    {
+                        GameStateCounter = 0
+                        GameState = .levelstart
+                    }
+                }
+                
                 print(GameState)
             case .flying:
                 liveslabel?.text = "Wheeeeee!"
@@ -261,6 +276,8 @@ class GameScene: SKScene {
     }
     
     func touchUp(atPoint pos : CGPoint) {
+        
+       
         
     }
     
