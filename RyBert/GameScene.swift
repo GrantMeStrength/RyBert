@@ -45,7 +45,7 @@ class GameScene: SKScene {
     }
     
     
-    private var GameState : gameState = .getready
+    private var GameState : gameState = .gamestart
     private var GameStateCounter = 0
     
     override func didMove(to view: SKView) {
@@ -114,9 +114,8 @@ class GameScene: SKScene {
                         
                         let p = self.QBert?.getPosition()
                         self.drawAlternateTile(X: p!.0, Y: p!.1)
-                        self.level_count = self.level_count + 1
-                        self.score = self.score + 25
-                        self.label?.text = "Score: " + String(self.score)
+                       
+                        
                     }
                     
                     if name == "Disk" {
@@ -160,7 +159,9 @@ class GameScene: SKScene {
                 print(GameState)
                 lives = 3
                 level = 1
+                GameState = .levelstart
             case .levelstart:
+                setLevelDetails()
               //  Blobs!.reset(level: level)
                 QBert!.reset()
               //  TheSid!.reset()
@@ -181,7 +182,7 @@ class GameScene: SKScene {
                 }
             case .action:
                 liveslabel?.text = "Action"
-                TheSid!.controlSid(qbert_position: (QBert?.getPosition())!)
+             //   TheSid!.controlSid(qbert_position: (QBert?.getPosition())!)
             //    Blobs!.controlBlobs(qbert_position: (QBert?.getPosition())!)
                 GameStateCounter = 0
             case .died:
@@ -211,15 +212,15 @@ class GameScene: SKScene {
                 }
                 else
                 {
-                    GameStateCounter = GameStateCounter + 1
+                   
                     if GameStateCounter > 5
                     {
                         GameStateCounter = 0
                         GameState = .levelstart
                     }
                 }
+                GameStateCounter = GameStateCounter + 1
                 
-                print(GameState)
             case .flying:
                 liveslabel?.text = "Wheeeeee!"
                 
@@ -233,7 +234,27 @@ class GameScene: SKScene {
         
     }
     
+    func setLevelDetails() {
+        
+        switch level {
+        case 1 : level_count = 28
+        case 2 : level_count = 28
+        case 3 : level_count = 56
+        default : level_count = 56
+        }
+    }
     
+    
+    func freshtile() {
+        self.level_count = self.level_count - 1
+        print (self.level_count)
+        self.score = self.score + 25
+        self.label?.text = "Score: " + String(self.score)
+        
+        if self.level_count == 0 {
+            self.GameState = .levelcomplete
+        }
+    }
     
     func drawAlternateTile(X : Int, Y: Int)
     {
@@ -242,6 +263,7 @@ class GameScene: SKScene {
             Grid?.setTile(X: X, Y: Y, tile: 2)
             let p = Grid!.convertToScreenFromGrid(X: X, Y: Y)
             Tiles!.generateAlternateTile(atPoint: CGPoint(x: p.x, y: p.y - 40), tile: 2)
+            freshtile()
         }
         else
         {
@@ -249,6 +271,7 @@ class GameScene: SKScene {
                 Grid?.setTile(X: X, Y: Y, tile: 3)
                 let p = Grid!.convertToScreenFromGrid(X: X, Y: Y)
                 Tiles!.generateAlternateTile(atPoint: CGPoint(x: p.x, y: p.y - 40), tile: 3)
+                freshtile()
             }
             
         }
