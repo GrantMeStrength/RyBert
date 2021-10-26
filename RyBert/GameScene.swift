@@ -18,6 +18,8 @@ class GameScene: SKScene {
     private var qbertLife2 : SKSpriteNode?
     private var qbertLife3 : SKSpriteNode?
    
+    private var targetTile : SKSpriteNode?
+   
     
     private var levelLabel : SKLabelNode?
     private var roundLabel : SKLabelNode?
@@ -107,6 +109,7 @@ class GameScene: SKScene {
         self.qbertLife1 = self.childNode(withName: "//qbertLife1") as? SKSpriteNode
         self.qbertLife2 = self.childNode(withName: "//qbertLife2") as? SKSpriteNode
         self.qbertLife3 = self.childNode(withName: "//qbertLife3") as? SKSpriteNode
+        self.targetTile = self.childNode(withName: "//targetTile") as? SKSpriteNode
        
         
       
@@ -215,8 +218,8 @@ class GameScene: SKScene {
                 }
             case .action:
                 liveslabel?.text = "Action"
-             //   TheSid!.controlSid(qbert_position: (QBert?.getPosition())!)
-            //    Blobs!.controlBlobs(qbert_position: (QBert?.getPosition())!)
+                TheSid!.controlSid(qbert_position: (QBert?.getPosition())!)
+                Blobs!.controlBlobs(qbert_position: (QBert?.getPosition())!)
                 GameStateCounter = 0
             case .died:
                 if GameStateCounter == 0
@@ -281,6 +284,12 @@ class GameScene: SKScene {
           levelLabel?.text = String(level)
           scoreLabel?.text = String(score)
           
+        switch round {
+            case 1 : targetTile?.texture = SKTexture(imageNamed: "square_red")
+            default : targetTile?.texture = SKTexture(imageNamed: "square_blue")
+        }
+        
+        
     }
     
     func setLevelDetails() {
