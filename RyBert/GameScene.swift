@@ -10,14 +10,24 @@ import GameplayKit
 
 class GameScene: SKScene {
     
-    private var label : SKLabelNode?
     private var liveslabel : SKLabelNode?
     private var rude : SKSpriteNode?
+    
+    
+    private var qbertLife1 : SKSpriteNode?
+    private var qbertLife2 : SKSpriteNode?
+    private var qbertLife3 : SKSpriteNode?
+   
+    
+    private var levelLabel : SKLabelNode?
+    private var roundLabel : SKLabelNode?
+    private var scoreLabel : SKLabelNode?
+   
     
     private var ticks = 0
     
     
-    
+    private var round = 1
     private var level = 1
     private var lives = 3
     private var score = 0
@@ -50,15 +60,24 @@ class GameScene: SKScene {
     
     override func didMove(to view: SKView) {
         
+        // Magical scaling code
         scene!.scaleMode = .aspectFit
-            scene!.backgroundColor = .black
+        scene!.backgroundColor = .black
         
         // Get label node from scene and store it for use later
-        self.label = self.childNode(withName: "//helloLabel") as? SKLabelNode
-        if let label = self.label {
-            label.alpha = 0.0
-            label.run(SKAction.fadeIn(withDuration: 2.0))
-            label.text = "Score: " + String(score)
+        self.scoreLabel = self.childNode(withName: "//scoreLabel") as? SKLabelNode
+        if let scoreLabel = self.scoreLabel {
+            scoreLabel.text = String(score)
+        }
+        
+        self.levelLabel = self.childNode(withName: "//levelLabel") as? SKLabelNode
+        if let levelLabel = self.levelLabel {
+            levelLabel.text = String(level)
+        }
+        
+        self.roundLabel = self.childNode(withName: "//roundLabel") as? SKLabelNode
+        if let roundLabel = self.roundLabel {
+            roundLabel.text = String(round)
         }
         
         self.liveslabel = self.childNode(withName: "//livesLabel") as? SKLabelNode
@@ -85,7 +104,12 @@ class GameScene: SKScene {
             
         }
         
+        self.qbertLife1 = self.childNode(withName: "//qbertLife1") as? SKSpriteNode
+        self.qbertLife2 = self.childNode(withName: "//qbertLife2") as? SKSpriteNode
+        self.qbertLife3 = self.childNode(withName: "//qbertLife3") as? SKSpriteNode
+       
         
+      
         // Add notification system
         
         NotificationCenter.default.addObserver(forName: .gameEvent, object: nil, queue: nil) {(notification) in
@@ -158,13 +182,18 @@ class GameScene: SKScene {
             switch GameState {
             case .attract:
                 print(GameState)
+                status()
             case .gamestart:
                 print(GameState)
                 lives = 3
                 level = 1
+                round = 1
+                status()
                 GameState = .levelstart
             case .levelstart:
+                
                 setLevelDetails()
+                status()
               //  Blobs!.reset(level: level)
                 QBert!.reset()
               //  TheSid!.reset()
@@ -173,6 +202,7 @@ class GameScene: SKScene {
             case .getready:
                 if GameStateCounter == 0
                 {
+                    status()
                 rude?.isHidden = true
                 Blobs!.reset(level: level)
                 TheSid!.reset()
@@ -191,10 +221,12 @@ class GameScene: SKScene {
             case .died:
                 if GameStateCounter == 0
                 {
+                   
                 print("Died")
                 TheSid!.resetPosition()
                 lives = lives - 1
                 liveslabel?.text = "Lives: " + String(lives)
+                    status()
                 }
                 GameStateCounter = GameStateCounter + 1
                 if GameStateCounter == 4 {
@@ -212,6 +244,7 @@ class GameScene: SKScene {
             case .levelcomplete:
                 if (GameStateCounter == 0) {
                 Tiles?.flashTiles()
+                    status()
                 }
                 else
                 {
@@ -226,15 +259,28 @@ class GameScene: SKScene {
                 
             case .flying:
                 liveslabel?.text = "Wheeeeee!"
+                status()
                 
             case .gameover:
                 liveslabel?.text = "Game Over"
+                status()
                 
             }
             
             
         }
         
+    }
+    
+    func status() {
+        
+          if lives > 2 {self.qbertLife3?.isHidden=false} else {self.qbertLife3?.isHidden=true}
+          if lives > 1 {self.qbertLife2?.isHidden=false} else {self.qbertLife2?.isHidden=true}
+          if lives > 0 {self.qbertLife1?.isHidden=false} else {self.qbertLife1?.isHidden=true}
+          roundLabel?.text = String(round)
+          levelLabel?.text = String(level)
+          scoreLabel?.text = String(score)
+          
     }
     
     func setLevelDetails() {
@@ -252,7 +298,7 @@ class GameScene: SKScene {
         self.level_count = self.level_count - 1
         print (self.level_count)
         self.score = self.score + 25
-        self.label?.text = "Score: " + String(self.score)
+        self.scoreLabel?.text = String(self.score)
         
         if self.level_count == 0 {
             self.GameState = .levelcomplete
