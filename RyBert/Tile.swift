@@ -15,7 +15,13 @@ class Tile {
     private var tile_blue : SKSpriteNode?
     private var tile_yellow : SKSpriteNode?
     private var tile_red : SKSpriteNode?
-    
+    private var tile_grey_blue : SKSpriteNode?
+    private var tile_grey_white : SKSpriteNode?
+    private var tile_grey_light : SKSpriteNode?
+    private var tile_yuck_one : SKSpriteNode?
+    private var tile_yuck_two : SKSpriteNode?
+    private var tile_yuck_three : SKSpriteNode?
+   
     private var root : SKSpriteNode?
    
    
@@ -25,7 +31,8 @@ class Tile {
     private var disk_right : SKSpriteNode?
     private var disk_frames : [SKTexture] = []
    
-    
+    private var tile_level = 1
+    private var tile_round = 1
     
     init (withScene theScene: SKScene)
     {
@@ -39,7 +46,7 @@ class Tile {
         
         // Create tile node for drawing the game grid
         
-        self.tile_yellow = SKSpriteNode(imageNamed: "square_grey_light")
+        self.tile_yellow = SKSpriteNode(imageNamed: "square_yellow")
         if let tile_yellow = tile_yellow {
             tile_yellow.size = CGSize(width: 288/3, height: 320/2.5)
             tile_yellow.zPosition = 1
@@ -48,7 +55,7 @@ class Tile {
         
         // Create alternate tile node for drawing the game grid
         
-        self.tile_blue = SKSpriteNode(imageNamed: "square_grey_blue")
+        self.tile_blue = SKSpriteNode(imageNamed: "square_blue")
         if let tile_blue = tile_blue {
             tile_blue.size = CGSize(width: 288/3, height: 320/2.5)
             tile_blue.zPosition = 2
@@ -58,6 +65,42 @@ class Tile {
         if let tile_red = tile_red {
             tile_red.size = CGSize(width: 288/3, height: 320/2.5)
             tile_red.zPosition = 3
+        }
+        
+        self.tile_grey_light = SKSpriteNode(imageNamed: "square_grey_light")
+        if let tile_grey_light = tile_grey_light {
+            tile_grey_light.size = CGSize(width: 288/3, height: 320/2.5)
+            tile_grey_light.zPosition = 1
+        }
+        
+        self.tile_grey_white = SKSpriteNode(imageNamed: "square_grey_white")
+        if let tile_grey_white = tile_grey_white {
+            tile_grey_white.size = CGSize(width: 288/3, height: 320/2.5)
+            tile_grey_white.zPosition = 2
+        }
+        
+        self.tile_grey_blue = SKSpriteNode(imageNamed: "square_grey_blue")
+        if let tile_grey_blue = tile_grey_blue {
+            tile_grey_blue.size = CGSize(width: 288/3, height: 320/2.5)
+            tile_grey_blue.zPosition = 3
+        }
+        
+        self.tile_yuck_one = SKSpriteNode(imageNamed: "square_yuck_one")
+        if let tile_yuck_one = tile_yuck_one {
+            tile_yuck_one.size = CGSize(width: 288/3, height: 320/2.5)
+            tile_yuck_one.zPosition = 1
+        }
+        
+        self.tile_yuck_two = SKSpriteNode(imageNamed: "square_yuck_two")
+        if let tile_yuck_two = tile_yuck_two {
+            tile_yuck_two.size = CGSize(width: 288/3, height: 320/2.5)
+            tile_yuck_two.zPosition = 2
+        }
+        
+        self.tile_yuck_three = SKSpriteNode(imageNamed: "square_yuck_three")
+        if let tile_yuck_three = tile_yuck_three {
+            tile_yuck_three.size = CGSize(width: 288/3, height: 320/2.5)
+            tile_yuck_three.zPosition = 3
         }
         
         // Spinny disks
@@ -173,39 +216,108 @@ class Tile {
     
     
     func generateTile(atPoint pos: CGPoint) {
+        
+        if tile_round == 1
+        {
         if let n = self.tile_yellow?.copy() as! SKSpriteNode? {
             n.position = pos
             root!.addChild(n)
         }
+        }
+        
+        if tile_round == 2
+        {
+        if let n = self.tile_grey_light?.copy() as! SKSpriteNode? {
+            n.position = pos
+            root!.addChild(n)
+        }
+        }
+        
+        if tile_round == 3
+        {
+        if let n = self.tile_yuck_one?.copy() as! SKSpriteNode? {
+            n.position = pos
+            root!.addChild(n)
+        }
+        }
+        
     }
     
     func generateAlternateTile(atPoint pos: CGPoint, tile : Int) {
         
         if (tile == 2) {
+            
+            if tile_round == 1
+            {
+                
         if let n = self.tile_blue?.copy() as! SKSpriteNode? {
             n.position = pos
             root!.addChild(n)
         }
+            }
+            
+            if tile_round == 2
+            {
+                
+        if let n = self.tile_grey_white?.copy() as! SKSpriteNode? {
+            n.position = pos
+            root!.addChild(n)
         }
+            }
+            
+            if tile_round == 3
+            {
+                
+        if let n = self.tile_yuck_two?.copy() as! SKSpriteNode? {
+            n.position = pos
+            root!.addChild(n)
+        }
+            }
+            
+        }
+        
         else
         {
+            if tile_round == 1
+            {
             if let n = self.tile_red?.copy() as! SKSpriteNode? {
                 n.position = pos
                 root!.addChild(n)
         }
+            }
+            
+            if tile_round == 2
+            {
+            if let n = self.tile_grey_blue?.copy() as! SKSpriteNode? {
+                n.position = pos
+                root!.addChild(n)
+        }
+            }
+            
+            if tile_round == 3
+            {
+            if let n = self.tile_yuck_two?.copy() as! SKSpriteNode? {
+                n.position = pos
+                root!.addChild(n)
+        }
+            }
+            
         }
     }
     
-    func drawTiles()
+    func drawTiles(round : Int)
     {
-          
+        tile_round = round
+        
         for y in 0...6 {
             for x in 0...12 {
                 
+               
                 if gamegrid.getTile(X: x, Y: y) == gamegrid.yellow {
                     let p = gamegrid.convertToScreenFromGrid(X: x, Y: y)
                     generateTile(atPoint: CGPoint(x: p.x, y: p.y - 40))
                 }
+                
                 
                 if gamegrid.getTile(X: x, Y: y) == gamegrid.diskLeft { // a disk
                     let p = gamegrid.convertToScreenFromGrid(X: x, Y: y)

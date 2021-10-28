@@ -93,7 +93,7 @@ class GameScene: SKScene {
         
         Blobs = Blob(withScene: self)
         Tiles = Tile(withScene: self)
-        Tiles?.drawTiles()
+        Tiles?.drawTiles(round: round)
         Grid = GameGrid()
         Tiles?.removeTiles()
         TheSid = Sid(withScene: self)
