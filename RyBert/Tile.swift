@@ -39,7 +39,7 @@ class Tile {
         
         // Create tile node for drawing the game grid
         
-        self.tile_yellow = SKSpriteNode(imageNamed: "square_yellow")
+        self.tile_yellow = SKSpriteNode(imageNamed: "square_grey_light")
         if let tile_yellow = tile_yellow {
             tile_yellow.size = CGSize(width: 288/3, height: 320/2.5)
             tile_yellow.zPosition = 1
@@ -48,7 +48,7 @@ class Tile {
         
         // Create alternate tile node for drawing the game grid
         
-        self.tile_blue = SKSpriteNode(imageNamed: "square_blue")
+        self.tile_blue = SKSpriteNode(imageNamed: "square_grey_blue")
         if let tile_blue = tile_blue {
             tile_blue.size = CGSize(width: 288/3, height: 320/2.5)
             tile_blue.zPosition = 2

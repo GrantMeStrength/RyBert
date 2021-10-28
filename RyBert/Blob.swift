@@ -154,6 +154,14 @@ class Blob {
         blobs[b].c = -5
     }
     
+    
+    func hide()
+    {
+        for b in 0...2 {
+            blobs[b].sprite.isHidden = true
+         }
+    }
+    
     func controlBlobs(qbert_position : (Int, Int))
     {
         for b in 0...2 {
@@ -164,7 +172,7 @@ class Blob {
             }
             else {
                 
-                if (qbert_position.0 == blobs[b].x && qbert_position.1 == blobs[b].y)
+                if (qbert_position.0 == blobs[b].x && qbert_position.1 == blobs[b].y) && blobs[b].c > 0
                 {
                     let event = ["collision": "blob"]
                     let notification = Notification(name: .gameEvent, object: nil, userInfo: event)

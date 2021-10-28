@@ -50,6 +50,10 @@ class Sid {
         sid_frames = spinFrames
     }
     
+    func hide()
+    {
+        sid.sprite.isHidden = true
+    }
     
     func sidStep(QX: Int, QY: Int)
     {

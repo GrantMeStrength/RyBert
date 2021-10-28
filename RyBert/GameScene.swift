@@ -18,14 +18,14 @@ class GameScene: SKScene {
     private var qbertLife1 : SKSpriteNode?
     private var qbertLife2 : SKSpriteNode?
     private var qbertLife3 : SKSpriteNode?
-   
+    
     private var targetTile : SKSpriteNode?
-   
+    
     
     private var levelLabel : SKLabelNode?
     private var roundLabel : SKLabelNode?
     private var scoreLabel : SKLabelNode?
-   
+    
     
     private var ticks = 0
     
@@ -85,10 +85,10 @@ class GameScene: SKScene {
         
         self.statusLabel = self.childNode(withName: "//statusLabel") as? SKLabelNode
         if let statusLabel = self.statusLabel {
-//            statusLabel.text = "Plop"
+            //            statusLabel.text = "Plop"
             statusLabel.alpha = 0.0
-//           // liveslabel.run(SKAction.fadeIn(withDuration: 2.0))
-//           // liveslabel.text = "Lives: " + String(score)
+            //           // liveslabel.run(SKAction.fadeIn(withDuration: 2.0))
+            //           // liveslabel.text = "Lives: " + String(score)
         }
         
         Blobs = Blob(withScene: self)
@@ -116,17 +116,17 @@ class GameScene: SKScene {
         self.targetTile = self.childNode(withName: "//targetTile") as? SKSpriteNode
         self.arrows = self.childNode(withName: "//arrowsSprite") as? SKSpriteNode
         arrows?.alpha = 0
-       
+        
         
         let fadeTextInAndOut = SKAction.sequence([SKAction.fadeIn(withDuration: 0.2), SKAction.wait(forDuration: 1.0), SKAction.fadeOut(withDuration: 0.2) ])
         
         let fadeArrowsInAndOut = SKAction.sequence([SKAction.fadeIn(withDuration: 0.2), SKAction.wait(forDuration: 0.2), SKAction.fadeOut(withDuration: 0.2) ])
-       
+        
         // liveslabel.alpha = 0.0
         // liveslabel.run(SKAction.fadeIn(withDuration: 2.0))
         
         
-      
+        
         // Add notification system
         
         NotificationCenter.default.addObserver(forName: .gameEvent, object: nil, queue: nil) {(notification) in
@@ -140,16 +140,11 @@ class GameScene: SKScene {
                     {
                         self.GameState = .died
                         
-                        if self.lives > 0 {
-                        
                         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                             self.QBert!.reset()
                         }
-                        }
-                        else
-                        {
-                            self.QBert!.hide()
-                        }
+                        print("\(name) went and \(score) !")
+                        break
                     }
                     
                     if name == "collision" && self.GameState == .action
@@ -158,15 +153,14 @@ class GameScene: SKScene {
                         self.rude?.position = CGPoint(x: p.x, y: p.y + 64)
                         self.rude?.isHidden = false
                         self.GameState = .died
-                        //self.QBert!.setPosition(X: 1, Y: 1)
+                        print("\(name) went and \(score) !")
+                        break
                     }
                     
                     if name == "Tile" {
                         
                         let p = self.QBert?.getPosition()
                         self.drawAlternateTile(X: p!.0, Y: p!.1)
-                       
-                        
                     }
                     
                     if name == "Disk" {
@@ -207,6 +201,13 @@ class GameScene: SKScene {
             case .attract:
                 print(GameState)
                 status()
+                if GameStateCounter == 0
+                {
+                    Blobs!.hide()
+                    TheSid!.hide()
+                    rude!.isHidden = true
+                }
+                GameStateCounter = GameStateCounter + 1
                 
             case .gamestart:
                 print(GameState)
@@ -217,12 +218,12 @@ class GameScene: SKScene {
                 GameState = .levelstart
                 
             case .levelstart:
-                
+                print(GameState)
                 setLevelDetails()
                 status()
-              //  Blobs!.reset(level: level)
+                //  Blobs!.reset(level: level)
                 QBert!.reset()
-              //  TheSid!.reset()
+                //  TheSid!.reset()
                 GameStateCounter = 0
                 GameState = .getready
             case .getready:
@@ -233,16 +234,17 @@ class GameScene: SKScene {
                         arrows?.run(SKAction.sequence([fadeArrowsInAndOut,fadeArrowsInAndOut,fadeArrowsInAndOut] ))
                     }
                     status()
-                rude?.isHidden = true
-                Blobs!.reset(level: level)
-                TheSid!.reset()
-                statusLabel?.text = "Get Ready"
+                    rude?.isHidden = true
+                    Blobs!.reset(level: level)
+                    TheSid!.reset()
+                    statusLabel?.text = "Get Ready"
                     statusLabel?.run(fadeTextInAndOut)
                 }
                 GameStateCounter = GameStateCounter + 1
                 if GameStateCounter == 4 {
                     GameState = .action
                     GameStateCounter = 0
+                   
                 }
                 
             case .action:
@@ -255,14 +257,9 @@ class GameScene: SKScene {
             case .died:
                 if GameStateCounter == 0
                 {
-                   
-                print("Died")
-                   
-                TheSid!.resetPosition()
-                   
-                lives = lives - 1
-              
-                    
+                    print("Died")
+                    TheSid!.resetPosition()
+                    lives = lives - 1
                     status()
                 }
                 GameStateCounter = GameStateCounter + 1
@@ -278,40 +275,47 @@ class GameScene: SKScene {
                     }
                     GameStateCounter = 0
                 }
-               
+                
             case .levelcomplete:
                 if (GameStateCounter == 0) {
-                Tiles?.flashTiles()
+                    Tiles?.flashTiles()
                     status()
                 }
                 else
                 {
-                   
+                    
                     if GameStateCounter > 5
                     {
                         GameStateCounter = 0
                         GameState = .levelstart
+                        break
                     }
                 }
                 GameStateCounter = GameStateCounter + 1
                 
             case .flying:
-              
+                
                 
                 status()
                 
             case .gameover:
                 if GameStateCounter == 0
                 {
-                    QBert!.hide()
                     statusLabel?.text = "Game Over"
                     statusLabel?.run(fadeTextInAndOut)
                     GameStateCounter = 1
                 }
                 else
                 {
-                    GameStateCounter = GameStateCounter + 1
+                    if GameStateCounter == 10 {
+                        GameStateCounter = 0
+                        GameState = .attract
+                        break
+                        
+                    }
                 }
+                
+                GameStateCounter = GameStateCounter + 1
                 
                 status()
                 
@@ -324,16 +328,16 @@ class GameScene: SKScene {
     
     func status() {
         
-          if lives > 2 {self.qbertLife3?.isHidden=false} else {self.qbertLife3?.isHidden=true}
-          if lives > 1 {self.qbertLife2?.isHidden=false} else {self.qbertLife2?.isHidden=true}
-          if lives > 0 {self.qbertLife1?.isHidden=false} else {self.qbertLife1?.isHidden=true}
-          roundLabel?.text = String(round)
-          levelLabel?.text = String(level)
-          scoreLabel?.text = String(score)
-          
+        if lives > 2 {self.qbertLife3?.isHidden=false} else {self.qbertLife3?.isHidden=true}
+        if lives > 1 {self.qbertLife2?.isHidden=false} else {self.qbertLife2?.isHidden=true}
+        if lives > 0 {self.qbertLife1?.isHidden=false} else {self.qbertLife1?.isHidden=true}
+        roundLabel?.text = String(round)
+        levelLabel?.text = String(level)
+        scoreLabel?.text = String(score)
+        
         switch round {
-            case 1 : targetTile?.texture = SKTexture(imageNamed: "square_blue")
-            default : targetTile?.texture = SKTexture(imageNamed: "square_red")
+        case 1 : targetTile?.texture = SKTexture(imageNamed: "square_blue")
+        default : targetTile?.texture = SKTexture(imageNamed: "square_red")
         }
         
         
@@ -387,8 +391,8 @@ class GameScene: SKScene {
     
     func touchDown(atPoint pos : CGPoint) {
         
-        // Can only move Qbert 
-        if self.GameState == .getready || self.GameState == .action {
+        // Can only move Qbert
+        if /*self.GameState == .getready ||*/ self.GameState == .action {
             QBert?.moveQbert(tap: pos)
         }
         // Baddies won't appear until the player first moves..
@@ -405,12 +409,12 @@ class GameScene: SKScene {
     
     func touchUp(atPoint pos : CGPoint) {
         
-       
+        
         
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-      
+        
         for t in touches { self.touchDown(atPoint: t.location(in: self)) }
     }
     
