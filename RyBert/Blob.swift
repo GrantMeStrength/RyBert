@@ -42,7 +42,7 @@ class Blob {
     self.master_blob = SKSpriteNode(imageNamed: "blob")
     if let master_blob = master_blob {
         master_blob.size = CGSize(width: 48, height: 48)
-        master_blob.zPosition = 4
+        master_blob.zPosition = 5
     }
     
     blobs[0].sprite = (self.master_blob?.copy() as! SKSpriteNode?)!
@@ -133,9 +133,9 @@ class Blob {
     
     func blobDisappear(b : Int)
     {
-        // Fall the blob off the game grid
+        // Fall the blob off the game grid..
         
-        blobs[b].active = false
+       // blobs[b].active = false
         
         let dx = (Int.random(in: 0...1) == 0) ? -1 : 1
         
@@ -150,7 +150,6 @@ class Blob {
         
         blobs[b].sprite.run(SKAction.sequence([jump, drop]))
         
-       // blobs[b].x = (Int.random(in: 0...1) == 0) ? 5 : 7
         blobs[b].y = 1
         blobs[b].c = -5
     }

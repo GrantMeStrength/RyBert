@@ -32,7 +32,7 @@ class Sid {
         myScene = theScene
         sid.sprite =  SKSpriteNode(texture: sid_frames[0])
         sid.sprite.size = CGSize(width: 48, height: 48)
-        sid.sprite.zPosition = 3
+        sid.sprite.zPosition = 6
         sid.sprite.isHidden = true
         myScene?.addChild(sid.sprite)
     }

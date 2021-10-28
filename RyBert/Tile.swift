@@ -65,7 +65,7 @@ class Tile {
         self.disk_left = SKSpriteNode(texture: disk_frames[0])
         if let disk_left = disk_left {
             disk_left.size = CGSize(width: 291/4, height: 115/3)
-            disk_left.zPosition = 2
+            disk_left.zPosition = 3
             myScene!.addChild(disk_left)
         }
         
@@ -73,7 +73,7 @@ class Tile {
         self.disk_right = SKSpriteNode(texture: disk_frames[0])
         if let disk_right = disk_right {
             disk_right.size = CGSize(width: 291/4, height: 115/3)
-            disk_right.zPosition = 2
+            disk_right.zPosition = 3
             myScene!.addChild(disk_right)
         }
         
@@ -100,6 +100,7 @@ class Tile {
         
         root!.removeAllActions()
     }
+    
     
     func flashTiles()
     {

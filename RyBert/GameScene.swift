@@ -10,8 +10,9 @@ import GameplayKit
 
 class GameScene: SKScene {
     
-    private var liveslabel : SKLabelNode?
+    private var statusLabel : SKLabelNode?
     private var rude : SKSpriteNode?
+    private var arrows : SKSpriteNode?
     
     
     private var qbertLife1 : SKSpriteNode?
@@ -82,11 +83,12 @@ class GameScene: SKScene {
             roundLabel.text = String(round)
         }
         
-        self.liveslabel = self.childNode(withName: "//livesLabel") as? SKLabelNode
-        if let liveslabel = self.liveslabel {
-            liveslabel.alpha = 0.0
-            liveslabel.run(SKAction.fadeIn(withDuration: 2.0))
-            liveslabel.text = "Lives: " + String(score)
+        self.statusLabel = self.childNode(withName: "//statusLabel") as? SKLabelNode
+        if let statusLabel = self.statusLabel {
+//            statusLabel.text = "Plop"
+            statusLabel.alpha = 0.0
+//           // liveslabel.run(SKAction.fadeIn(withDuration: 2.0))
+//           // liveslabel.text = "Lives: " + String(score)
         }
         
         Blobs = Blob(withScene: self)
@@ -100,17 +102,29 @@ class GameScene: SKScene {
         self.rude = SKSpriteNode(imageNamed: "rude")
         if let rude = rude {
             rude.size = CGSize(width: 348/2, height: 172/2)
-            rude.zPosition = 3
+            rude.zPosition = 7
             rude.isHidden = true
             self.addChild(rude)
             
         }
         
+        
+        
         self.qbertLife1 = self.childNode(withName: "//qbertLife1") as? SKSpriteNode
         self.qbertLife2 = self.childNode(withName: "//qbertLife2") as? SKSpriteNode
         self.qbertLife3 = self.childNode(withName: "//qbertLife3") as? SKSpriteNode
         self.targetTile = self.childNode(withName: "//targetTile") as? SKSpriteNode
+        self.arrows = self.childNode(withName: "//arrowsSprite") as? SKSpriteNode
+        arrows?.alpha = 0
        
+        
+        let fadeTextInAndOut = SKAction.sequence([SKAction.fadeIn(withDuration: 0.2), SKAction.wait(forDuration: 1.0), SKAction.fadeOut(withDuration: 0.2) ])
+        
+        let fadeArrowsInAndOut = SKAction.sequence([SKAction.fadeIn(withDuration: 0.2), SKAction.wait(forDuration: 0.2), SKAction.fadeOut(withDuration: 0.2) ])
+       
+        // liveslabel.alpha = 0.0
+        // liveslabel.run(SKAction.fadeIn(withDuration: 2.0))
+        
         
       
         // Add notification system
@@ -125,9 +139,16 @@ class GameScene: SKScene {
                     if  name == "fall"
                     {
                         self.GameState = .died
+                        
+                        if self.lives > 0 {
+                        
                         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                             self.QBert!.reset()
-                            
+                        }
+                        }
+                        else
+                        {
+                            self.QBert!.hide()
                         }
                     }
                     
@@ -186,6 +207,7 @@ class GameScene: SKScene {
             case .attract:
                 print(GameState)
                 status()
+                
             case .gamestart:
                 print(GameState)
                 lives = 3
@@ -193,6 +215,7 @@ class GameScene: SKScene {
                 round = 1
                 status()
                 GameState = .levelstart
+                
             case .levelstart:
                 
                 setLevelDetails()
@@ -200,35 +223,46 @@ class GameScene: SKScene {
               //  Blobs!.reset(level: level)
                 QBert!.reset()
               //  TheSid!.reset()
-                liveslabel?.text = "Level start!"
+                GameStateCounter = 0
                 GameState = .getready
             case .getready:
                 if GameStateCounter == 0
                 {
+                    if lives == 3 { arrows?.isHidden = false;
+                        
+                        arrows?.run(SKAction.sequence([fadeArrowsInAndOut,fadeArrowsInAndOut,fadeArrowsInAndOut] ))
+                    }
                     status()
                 rude?.isHidden = true
                 Blobs!.reset(level: level)
                 TheSid!.reset()
-                liveslabel?.text = "Get Ready"
+                statusLabel?.text = "Get Ready"
+                    statusLabel?.run(fadeTextInAndOut)
                 }
                 GameStateCounter = GameStateCounter + 1
                 if GameStateCounter == 4 {
                     GameState = .action
                     GameStateCounter = 0
                 }
+                
             case .action:
-                liveslabel?.text = "Action"
+                //statusLabel?.text = "Action"
+                arrows?.isHidden = true
                 TheSid!.controlSid(qbert_position: (QBert?.getPosition())!)
                 Blobs!.controlBlobs(qbert_position: (QBert?.getPosition())!)
                 GameStateCounter = 0
+                
             case .died:
                 if GameStateCounter == 0
                 {
                    
                 print("Died")
+                   
                 TheSid!.resetPosition()
+                   
                 lives = lives - 1
-                liveslabel?.text = "Lives: " + String(lives)
+              
+                    
                     status()
                 }
                 GameStateCounter = GameStateCounter + 1
@@ -236,6 +270,7 @@ class GameScene: SKScene {
                     
                     if lives == 0 {
                         GameState = .gameover
+                        QBert!.hide()
                     }
                     else
                     {
@@ -261,11 +296,23 @@ class GameScene: SKScene {
                 GameStateCounter = GameStateCounter + 1
                 
             case .flying:
-                liveslabel?.text = "Wheeeeee!"
+              
+                
                 status()
                 
             case .gameover:
-                liveslabel?.text = "Game Over"
+                if GameStateCounter == 0
+                {
+                    QBert!.hide()
+                    statusLabel?.text = "Game Over"
+                    statusLabel?.run(fadeTextInAndOut)
+                    GameStateCounter = 1
+                }
+                else
+                {
+                    GameStateCounter = GameStateCounter + 1
+                }
+                
                 status()
                 
             }
@@ -285,8 +332,8 @@ class GameScene: SKScene {
           scoreLabel?.text = String(score)
           
         switch round {
-            case 1 : targetTile?.texture = SKTexture(imageNamed: "square_red")
-            default : targetTile?.texture = SKTexture(imageNamed: "square_blue")
+            case 1 : targetTile?.texture = SKTexture(imageNamed: "square_blue")
+            default : targetTile?.texture = SKTexture(imageNamed: "square_red")
         }
         
         

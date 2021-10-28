@@ -34,6 +34,11 @@ class QbertClass {
         
     }
     
+    func hide()
+    {
+        qbert?.isHidden = true
+    }
+    
     func reset()
     {
         qbert_x = 6
@@ -42,7 +47,8 @@ class QbertClass {
         qbert?.position = p
         qbert?.texture = SKTexture(imageNamed: "qbert")
         qbert?.zPosition = 4
-        jumpCounter = 0 
+        jumpCounter = 0
+        qbert?.isHidden = false
     }
     
     func flyingQbert()
