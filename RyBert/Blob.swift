@@ -22,7 +22,8 @@ class Blob {
     
     private var master_blob : SKSpriteNode?
    
-
+    private var soundFall = SKAction.playSoundFileNamed("jump-2.mp3", waitForCompletion: false)
+    
     
     private var blobs : [blob_type] = [
         blob_type(active: true, sprite: SKSpriteNode(), x: 1,y: 0, c: -5, speed: 1),
@@ -43,6 +44,13 @@ class Blob {
     if let master_blob = master_blob {
         master_blob.size = CGSize(width: 48, height: 48)
         master_blob.zPosition = 5
+        master_blob.physicsBody = SKPhysicsBody(texture: master_blob.texture!, size: CGSize(width: 4, height: 4))
+        master_blob.physicsBody?.collisionBitMask = 0
+        master_blob.physicsBody?.contactTestBitMask = 1     // test for contact with Qbert code
+        master_blob.physicsBody?.categoryBitMask = 2 // Code for blob
+        master_blob.physicsBody?.affectedByGravity = false
+        master_blob.physicsBody?.isDynamic = true
+       
     }
     
     blobs[0].sprite = (self.master_blob?.copy() as! SKSpriteNode?)!
@@ -114,8 +122,8 @@ class Blob {
         
         let rebound = SKAction.resize(toHeight: 40, duration: 0.2)
        
-       
-        blobs[b].sprite.run(SKAction.sequence([jump, drop, rebound]))
+        self.blobs[b].sprite.run(soundFall)
+        blobs[b].sprite.run(SKAction.sequence([jump, drop, rebound]), withKey: "blump")
        
     }
     
@@ -155,10 +163,19 @@ class Blob {
     }
     
     
+    func stop() {
+        for b in 0...2 {
+            blobs[b].sprite.removeAction(forKey: "blump")
+        }
+    }
+    
+    
     func hide()
     {
         for b in 0...2 {
             blobs[b].sprite.isHidden = true
+            blobs[b].sprite.position = CGPoint(x: -400,y: -400) // out of harms way for a contact event
+            
          }
     }
     
@@ -171,14 +188,14 @@ class Blob {
                 
             }
             else {
-                
-                if (qbert_position.0 == blobs[b].x && qbert_position.1 == blobs[b].y) && blobs[b].c > 0
-                {
-                    let event = ["collision": "blob"]
-                    let notification = Notification(name: .gameEvent, object: nil, userInfo: event)
-                    NotificationCenter.default.post(notification)
-                    return // no need to animate - blob has done its worst
-                }
+                // Handled by sprites now
+//                if (qbert_position.0 == blobs[b].x && qbert_position.1 == blobs[b].y) && blobs[b].c > 0
+//                {
+//                    let event = ["collision": "blob"]
+//                    let notification = Notification(name: .gameEvent, object: nil, userInfo: event)
+//                    NotificationCenter.default.post(notification)
+//                    return // no need to animate - blob has done its worst
+//                }
             
             blobs[b].c = blobs[b].c + 1
             
@@ -196,8 +213,6 @@ class Blob {
                 if blobs[b].c > 0
             {
                     blobStep(b: b)
-                    
-                   
                     
                 }
             

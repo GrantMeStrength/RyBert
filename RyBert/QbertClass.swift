@@ -11,11 +11,21 @@ import GameplayKit
 class QbertClass {
     
     private var qbert : SKSpriteNode?
+    private var rude : SKSpriteNode?
+    
     private var qbert_x = 6
     private var qbert_y = 0
     private var gamegrid = GameGrid()
     private var myScene : SKScene?
     private var jumpCounter = 0
+    
+    
+    private var soundFall = SKAction.playSoundFileNamed("fall.mp3", waitForCompletion: false)
+    private var soundJump = SKAction.playSoundFileNamed("jump-3.mp3", waitForCompletion: false)
+    private var soundSwear = SKAction.playSoundFileNamed("swear.mp3", waitForCompletion: false)
+    private var soundSwear2 = SKAction.playSoundFileNamed("speech-2.mp3", waitForCompletion: false)
+   private var soundFly = SKAction.playSoundFileNamed("lift.mp3", waitForCompletion: false)
+   
     
     
     init(withScene theScene: SKScene) {
@@ -27,10 +37,46 @@ class QbertClass {
             qbert.size = CGSize(width: 64, height: 64)
             qbert.zPosition = 4
             qbert.position = gamegrid.convertToScreenFromGrid(X: qbert_x, Y: qbert_y)
-            myScene?.addChild(qbert)
+            //qbert.physicsBody = SKPhysicsBody(texture: qbert.texture!, size: qbert.frame.size)
+            qbert.physicsBody = SKPhysicsBody(circleOfRadius: 20)
+            qbert.physicsBody?.collisionBitMask = 0
+            qbert.physicsBody?.contactTestBitMask = 0
+            qbert.physicsBody?.categoryBitMask = 1          // the code for Qbert
+            qbert.physicsBody?.affectedByGravity = false
+            qbert.physicsBody?.isDynamic = true
             
+            myScene?.addChild(qbert)
+        }
+        
+        self.rude = SKSpriteNode(imageNamed: "rude")
+        if let rude = rude {
+            rude.size = CGSize(width: 348/2, height: 172/2)
+            rude.zPosition = 7
+            rude.position = CGPoint(x:32, y:64)
+            rude.isHidden = true
+            qbert?.addChild(rude)
             
         }
+        
+       
+        
+    }
+    
+    func showRude() {
+        rude?.isHidden = false
+       
+        if (Int.random(in: 0...1) == 0) {
+            self.qbert?.run(soundSwear) } else {
+                self.qbert?.run(soundSwear2) }
+    }
+    
+    func hideRude() {
+        rude?.isHidden = true
+    }
+    
+    func stop() {
+       
+            qbert!.removeAction(forKey: "jump")
         
     }
     
@@ -62,7 +108,7 @@ class QbertClass {
         
         let drop = SKAction.move(to: p, duration: 0.2)
         
-        
+        self.qbert?.run(soundFly)
         qbert?.run(SKAction.sequence([fly, drop]))
         
     }
@@ -200,6 +246,8 @@ class QbertClass {
             qbert?.run(SKAction.sequence([jump, fall]))
             
             
+            self.qbert?.run(soundFall)
+            
             let event = ["fall": "qbert"]
             let notification = Notification(name: .gameEvent, object: nil, userInfo: event)
             NotificationCenter.default.post(notification)
@@ -207,6 +255,9 @@ class QbertClass {
             // Reset to top
             qbert_x = 6
             qbert_y = 0
+            
+            
+            
             
         }
         else
@@ -257,8 +308,8 @@ class QbertClass {
                 self.jumpCounter = 0
             }
             
-            
-            qbert?.run(jump)
+            self.qbert?.run(soundJump)
+            qbert?.run(jump, withKey: "jump")
         }
         
         

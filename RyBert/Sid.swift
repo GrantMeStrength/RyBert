@@ -24,6 +24,9 @@ class Sid {
     private var gamegrid = GameGrid()
     private var myScene : SKScene?
     
+    private var soundJump = SKAction.playSoundFileNamed("jump-4.mp3", waitForCompletion: false)
+    private var soundDrop = SKAction.playSoundFileNamed("jump-2.mp3", waitForCompletion: false)
+    
     
     init(withScene theScene: SKScene) {
         
@@ -34,6 +37,13 @@ class Sid {
         sid.sprite.size = CGSize(width: 48, height: 48)
         sid.sprite.zPosition = 6
         sid.sprite.isHidden = true
+        sid.sprite.physicsBody = SKPhysicsBody(texture: sid.sprite.texture!, size: CGSize(width: 16, height: 8))
+        sid.sprite.physicsBody?.collisionBitMask = 0
+        sid.sprite.physicsBody?.contactTestBitMask = 1     // test for contact with Qbert code
+        sid.sprite.physicsBody?.categoryBitMask = 2 // Code for blob
+        sid.sprite.physicsBody?.affectedByGravity = false
+        sid.sprite.physicsBody?.isDynamic = true
+       
         myScene?.addChild(sid.sprite)
     }
     
@@ -50,6 +60,12 @@ class Sid {
         sid_frames = spinFrames
     }
     
+    func stop() {
+       
+        sid.sprite.removeAllActions()
+        
+    }
+    
     func hide()
     {
         sid.sprite.isHidden = true
@@ -61,17 +77,17 @@ class Sid {
         
         sid.sprite.isHidden = false
         
-        if (QX == sid.x && QY == sid.y)
-        {
-            let event = ["collision": "sid"]
-            let notification = Notification(name: .gameEvent, object: nil, userInfo: event)
-            NotificationCenter.default.post(notification)
-            
-            sid.y = 1
-            sid.x = 1
-            
-            return
-        }
+//        if (QX == sid.x && QY == sid.y)
+//        {
+//            let event = ["collision": "sid"]
+//            let notification = Notification(name: .gameEvent, object: nil, userInfo: event)
+//            NotificationCenter.default.post(notification)
+//            
+//            sid.y = 1
+//            sid.x = 1
+//            
+//            return
+//        }
         
         if sid.mode == false {
             
@@ -95,6 +111,8 @@ class Sid {
             
             
             //3. Compress a little and then return to normal
+            
+            sid.sprite.run(soundDrop)
             
             let rebound = SKAction.resize(toHeight: 40, duration: 0.2)
             sid.sprite.run(SKAction.sequence([jump, drop, rebound]))
@@ -173,6 +191,7 @@ class Sid {
                 
                 //3. Compress a little and then return to normal
                 
+                sid.sprite.run(soundJump)
                 let rebound = SKAction.resize(toHeight: 64, duration: 0.2)
                 sid.sprite.run(SKAction.sequence([jump, drop, rebound]))
                 

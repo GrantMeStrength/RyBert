@@ -8,10 +8,10 @@
 import SpriteKit
 import GameplayKit
 
-class GameScene: SKScene {
+class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private var statusLabel : SKLabelNode?
-    private var rude : SKSpriteNode?
+   // private var rude : SKSpriteNode?
     private var arrows : SKSpriteNode?
     
     
@@ -61,7 +61,21 @@ class GameScene: SKScene {
     private var GameState : gameState = .gamestart
     private var GameStateCounter = 0
     
+    func didBegin(_ contact: SKPhysicsContact) {
+        print("SPLATTT")
+        
+        let event = ["collision": "blob"]
+        let notification = Notification(name: .gameEvent, object: nil, userInfo: event)
+        NotificationCenter.default.post(notification)
+        
+    }
+    
+   
+    
     override func didMove(to view: SKView) {
+        
+        physicsWorld.contactDelegate = self
+        view.showsPhysics = true
         
         // Magical scaling code
         scene!.scaleMode = .aspectFit
@@ -99,14 +113,7 @@ class GameScene: SKScene {
         TheSid = Sid(withScene: self)
         QBert = QbertClass(withScene: self)
         
-        self.rude = SKSpriteNode(imageNamed: "rude")
-        if let rude = rude {
-            rude.size = CGSize(width: 348/2, height: 172/2)
-            rude.zPosition = 7
-            rude.isHidden = true
-            self.addChild(rude)
-            
-        }
+      
         
         
         
@@ -149,9 +156,12 @@ class GameScene: SKScene {
                     
                     if name == "collision" && self.GameState == .action
                     {
-                        let p = self.QBert!.getSpritePosition()
-                        self.rude?.position = CGPoint(x: p.x, y: p.y + 64)
-                        self.rude?.isHidden = false
+                        //let p = self.QBert!.getSpritePosition()
+                        //self.rude?.position = CGPoint(x: p.x, y: p.y + 64)
+                        //self.rude?.isHidden = false
+                        
+                        self.QBert!.showRude()
+                        
                         self.GameState = .died
                         print("\(name) went and \(score) !")
                         break
@@ -205,7 +215,8 @@ class GameScene: SKScene {
                 {
                     Blobs!.hide()
                     TheSid!.hide()
-                    rude!.isHidden = true
+                    QBert!.hideRude()
+                    
                 }
                 GameStateCounter = GameStateCounter + 1
                 
@@ -221,11 +232,13 @@ class GameScene: SKScene {
                 print(GameState)
                 setLevelDetails()
                 status()
-                //  Blobs!.reset(level: level)
+                Blobs!.reset(level: level)
                 QBert!.reset()
-                //  TheSid!.reset()
+                TheSid!.reset()
                 GameStateCounter = 0
                 GameState = .getready
+                
+                
             case .getready:
                 if GameStateCounter == 0
                 {
@@ -234,7 +247,8 @@ class GameScene: SKScene {
                         arrows?.run(SKAction.sequence([fadeArrowsInAndOut,fadeArrowsInAndOut,fadeArrowsInAndOut] ))
                     }
                     status()
-                    rude?.isHidden = true
+                    QBert!.hideRude()
+                    Blobs!.hide()
                     Blobs!.reset(level: level)
                     TheSid!.reset()
                     statusLabel?.text = "Get Ready"
@@ -248,7 +262,6 @@ class GameScene: SKScene {
                 }
                 
             case .action:
-                //statusLabel?.text = "Action"
                 arrows?.isHidden = true
                 TheSid!.controlSid(qbert_position: (QBert?.getPosition())!)
                 Blobs!.controlBlobs(qbert_position: (QBert?.getPosition())!)
@@ -258,6 +271,9 @@ class GameScene: SKScene {
                 if GameStateCounter == 0
                 {
                     print("Died")
+                    QBert!.stop()
+                    Blobs!.stop()
+                    TheSid!.stop()
                     TheSid!.resetPosition()
                     lives = lives - 1
                     status()
@@ -356,7 +372,7 @@ class GameScene: SKScene {
     
     func freshtile() {
         self.level_count = self.level_count - 1
-        print (self.level_count)
+        //print (self.level_count)
         self.score = self.score + 25
         self.scoreLabel?.text = String(self.score)
         
