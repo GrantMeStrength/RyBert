@@ -7,5 +7,6 @@ A SpriteKit game for iOS
 * No logic for detecting collisions, levels, end of game, score etc. just yet - Mostly done
 * Do controls work by tapping relative to player, or fixed to screen quadrants? - relative to qbert. Add arrows that disappear soon to help player - done
 * Notification driven system to keep class interactions to the minimum. I like this approach. - done
+* Because events are sent even while characters are animating, and so potentially pass through each other, I should implement a sprite collision detection system. - Done
+* Sound effects - done
 
-Because events are sent even while characters are animating, and so potentially pass through each other, I should implement a sprite collision detection system. yay!

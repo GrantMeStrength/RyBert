@@ -20,7 +20,7 @@ class Sid {
     }
     
     private var sid_frames : [SKTexture] = []
-    private var sid = sid_type(active: true, sprite: SKSpriteNode(), x: 6,y: 0, c: -3, mode: false)
+    private var sid = sid_type(active: true, sprite: SKSpriteNode(), x: 6,y: 0, c: -5, mode: false)
     private var gamegrid = GameGrid()
     private var myScene : SKScene?
     
@@ -69,6 +69,7 @@ class Sid {
     func hide()
     {
         sid.sprite.isHidden = true
+        sid.sprite.position = CGPoint(x: -400, y: -400)
     }
     
     func sidStep(QX: Int, QY: Int)
@@ -77,17 +78,6 @@ class Sid {
         
         sid.sprite.isHidden = false
         
-//        if (QX == sid.x && QY == sid.y)
-//        {
-//            let event = ["collision": "sid"]
-//            let notification = Notification(name: .gameEvent, object: nil, userInfo: event)
-//            NotificationCenter.default.post(notification)
-//            
-//            sid.y = 1
-//            sid.x = 1
-//            
-//            return
-//        }
         
         if sid.mode == false {
             
@@ -262,10 +252,11 @@ class Sid {
         sid.mode = false
         sid.sprite.texture = sid_frames[0]
         sid.sprite.isHidden = true
-        sid.c = -2
+        sid.c = -4
        resetPosition()
     }
     
+   
     
     func controlSid(qbert_position : (Int, Int))
     {

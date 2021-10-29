@@ -12,6 +12,7 @@ class Tile {
     
     
     private var gamegrid = GameGrid()
+    private let gamegridmaster = GameGrid()
     private var tile_blue : SKSpriteNode?
     private var tile_yellow : SKSpriteNode?
     private var tile_red : SKSpriteNode?
@@ -31,7 +32,7 @@ class Tile {
     private var disk_right : SKSpriteNode?
     private var disk_frames : [SKTexture] = []
    
-    private var tile_level = 1
+   // private var tile_level = 1
     private var tile_round = 1
     
     init (withScene theScene: SKScene)
@@ -141,7 +142,7 @@ class Tile {
         // Delete all existing tiles (except the disks, they're still attached to myscene
         // and don't need re-created.
         
-        root!.removeAllActions()
+        root!.removeAllChildren()
     }
     
     
@@ -307,17 +308,20 @@ class Tile {
     
     func drawTiles(round : Int)
     {
+        removeTiles()
+        
         tile_round = round
         
         for y in 0...6 {
             for x in 0...12 {
                 
-               
+                // Reset the grid to good as new
+                gamegrid.setTile(X: x, Y: y, tile: gamegridmaster.getTile(X: x, Y: y))
+                
                 if gamegrid.getTile(X: x, Y: y) == gamegrid.yellow {
                     let p = gamegrid.convertToScreenFromGrid(X: x, Y: y)
                     generateTile(atPoint: CGPoint(x: p.x, y: p.y - 40))
                 }
-                
                 
                 if gamegrid.getTile(X: x, Y: y) == gamegrid.diskLeft { // a disk
                     let p = gamegrid.convertToScreenFromGrid(X: x, Y: y)
@@ -334,5 +338,4 @@ class Tile {
             }
         }
     }
-    
 }

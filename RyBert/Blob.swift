@@ -27,7 +27,7 @@ class Blob {
     
     private var blobs : [blob_type] = [
         blob_type(active: true, sprite: SKSpriteNode(), x: 1,y: 0, c: -5, speed: 1),
-        blob_type(active: true, sprite: SKSpriteNode(), x: 1,y: 0, c : -6, speed: 1),
+        blob_type(active: true, sprite: SKSpriteNode(), x: 1,y: 0, c : -10, speed: 1),
         blob_type(active: true, sprite: SKSpriteNode(), x: 1,y: 0, c : -7, speed: 1)
     ]
    
@@ -67,12 +67,15 @@ class Blob {
         
     }
     
+    
+    
+    
     func reset(level : Int){
         
         for b in 0...2 {
                 blobs[b].sprite.isHidden = true
                 blobs[b].active = false
-                blobs[b].c = -4 + b*2
+                blobs[b].c = -6 + b*4
             }
         
         
@@ -173,13 +176,14 @@ class Blob {
     func hide()
     {
         for b in 0...2 {
+            print("Hiding blob")
             blobs[b].sprite.isHidden = true
-            blobs[b].sprite.position = CGPoint(x: -400,y: -400) // out of harms way for a contact event
+            blobs[b].sprite.position = CGPoint(x: -400,y: -400) // out of harm's way for a contact event
             
          }
     }
     
-    func controlBlobs(qbert_position : (Int, Int))
+    func controlBlobs()
     {
         for b in 0...2 {
             
@@ -188,14 +192,7 @@ class Blob {
                 
             }
             else {
-                // Handled by sprites now
-//                if (qbert_position.0 == blobs[b].x && qbert_position.1 == blobs[b].y) && blobs[b].c > 0
-//                {
-//                    let event = ["collision": "blob"]
-//                    let notification = Notification(name: .gameEvent, object: nil, userInfo: event)
-//                    NotificationCenter.default.post(notification)
-//                    return // no need to animate - blob has done its worst
-//                }
+              
             
             blobs[b].c = blobs[b].c + 1
             

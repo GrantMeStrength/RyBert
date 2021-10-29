@@ -11,7 +11,6 @@ import GameplayKit
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private var statusLabel : SKLabelNode?
-   // private var rude : SKSpriteNode?
     private var arrows : SKSpriteNode?
     
     
@@ -42,6 +41,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var TheSid : Sid?
     private var QBert : QbertClass?
     
+    private var soundPrize = SKAction.playSoundFileNamed("prize.mp3", waitForCompletion: false)
+    private var soundTune = SKAction.playSoundFileNamed("tune.mp3", waitForCompletion: false)
     
     
     enum gameState {
@@ -58,12 +59,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     
-    private var GameState : gameState = .gamestart
+    private var GameState : gameState = .attract
     private var GameStateCounter = 0
     
     func didBegin(_ contact: SKPhysicsContact) {
-        print("SPLATTT")
-        
+
+        if GameState != .action { return }
         let event = ["collision": "blob"]
         let notification = Notification(name: .gameEvent, object: nil, userInfo: event)
         NotificationCenter.default.post(notification)
@@ -75,7 +76,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func didMove(to view: SKView) {
         
         physicsWorld.contactDelegate = self
-        view.showsPhysics = true
+        //view.showsPhysics = true <- see outlines, useful for debugging
         
         // Magical scaling code
         scene!.scaleMode = .aspectFit
@@ -99,22 +100,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         self.statusLabel = self.childNode(withName: "//statusLabel") as? SKLabelNode
         if let statusLabel = self.statusLabel {
-            //            statusLabel.text = "Plop"
             statusLabel.alpha = 0.0
-            //           // liveslabel.run(SKAction.fadeIn(withDuration: 2.0))
-            //           // liveslabel.text = "Lives: " + String(score)
         }
         
         Blobs = Blob(withScene: self)
         Tiles = Tile(withScene: self)
         Tiles?.drawTiles(round: round)
         Grid = GameGrid()
-        Tiles?.removeTiles()
+        //Tiles?.removeTiles()
         TheSid = Sid(withScene: self)
         QBert = QbertClass(withScene: self)
-        
-      
-        
         
         
         self.qbertLife1 = self.childNode(withName: "//qbertLife1") as? SKSpriteNode
@@ -128,10 +123,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let fadeTextInAndOut = SKAction.sequence([SKAction.fadeIn(withDuration: 0.2), SKAction.wait(forDuration: 1.0), SKAction.fadeOut(withDuration: 0.2) ])
         
         let fadeArrowsInAndOut = SKAction.sequence([SKAction.fadeIn(withDuration: 0.2), SKAction.wait(forDuration: 0.2), SKAction.fadeOut(withDuration: 0.2) ])
-        
-        // liveslabel.alpha = 0.0
-        // liveslabel.run(SKAction.fadeIn(withDuration: 2.0))
-        
         
         
         // Add notification system
@@ -148,22 +139,26 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                         self.GameState = .died
                         
                         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                            
+                            if self.lives > 0 {
                             self.QBert!.reset()
+                            }
+                            else {
+                                self.QBert!.hide()
+                            }
+                
                         }
-                        print("\(name) went and \(score) !")
+                        print("\(name) -> \(score) !")
                         break
                     }
                     
                     if name == "collision" && self.GameState == .action
                     {
-                        //let p = self.QBert!.getSpritePosition()
-                        //self.rude?.position = CGPoint(x: p.x, y: p.y + 64)
-                        //self.rude?.isHidden = false
                         
                         self.QBert!.showRude()
                         
                         self.GameState = .died
-                        print("\(name) went and \(score) !")
+                        print("\(name) -> \(score) !")
                         break
                     }
                     
@@ -193,7 +188,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                         
                     }
                     
-                    print("\(name) went and \(score) !")
+                    print("\(name) -> \(score) !")
                 }
             }
             
@@ -208,6 +203,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if ticks == 4 { ticks = 0}
             
             switch GameState {
+                
+                
             case .attract:
                 print(GameState)
                 status()
@@ -216,25 +213,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     Blobs!.hide()
                     TheSid!.hide()
                     QBert!.hideRude()
-                    
                 }
                 GameStateCounter = GameStateCounter + 1
                 
+                if (GameStateCounter % 5 == 0)
+                {
+                    statusLabel?.text = "Tap to play"
+                    statusLabel?.run(fadeTextInAndOut)
+                }
+                
             case .gamestart:
                 print(GameState)
-                lives = 3
-                level = 1
-                round = 1
+                prepareGame()
                 status()
                 GameState = .levelstart
                 
             case .levelstart:
-                print(GameState)
-                setLevelDetails()
+               prepareLevel()
                 status()
-                Blobs!.reset(level: level)
-                QBert!.reset()
-                TheSid!.reset()
                 GameStateCounter = 0
                 GameState = .getready
                 
@@ -249,6 +245,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     status()
                     QBert!.hideRude()
                     Blobs!.hide()
+                    TheSid!.hide()
                     Blobs!.reset(level: level)
                     TheSid!.reset()
                     statusLabel?.text = "Get Ready"
@@ -256,25 +253,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 }
                 GameStateCounter = GameStateCounter + 1
                 if GameStateCounter == 4 {
-                    GameState = .action
+                    arrows?.isHidden = true
+                   GameState = .action
                     GameStateCounter = 0
-                   
                 }
                 
             case .action:
-                arrows?.isHidden = true
-                TheSid!.controlSid(qbert_position: (QBert?.getPosition())!)
-                Blobs!.controlBlobs(qbert_position: (QBert?.getPosition())!)
-                GameStateCounter = 0
-                
+               
+                if level > 1 {
+                    TheSid!.controlSid(qbert_position: (QBert?.getPosition())!)
+                }
+                Blobs!.controlBlobs()
+                 
             case .died:
                 if GameStateCounter == 0
                 {
                     print("Died")
                     QBert!.stop()
                     Blobs!.stop()
+                    if level > 1 {
                     TheSid!.stop()
                     TheSid!.resetPosition()
+                    }
                     lives = lives - 1
                     status()
                 }
@@ -294,6 +294,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 
             case .levelcomplete:
                 if (GameStateCounter == 0) {
+                    self.run(soundTune)
                     Tiles?.flashTiles()
                     status()
                 }
@@ -342,6 +343,46 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
     }
     
+    func prepareLevel() {
+        
+        setLevelDetails()
+        Blobs!.reset(level: level)
+        QBert!.reset()
+        TheSid!.reset()
+        
+        // Delete any existing level
+        
+        //Tiles!.removeTiles()
+        
+        // Create a new one
+
+        Tiles!.drawTiles(round: round)
+        
+        // Reset positions and options
+        
+        Blobs!.reset(level: level)
+        TheSid!.reset()
+    }
+    
+    func prepareGame() {
+        
+        score = 0
+        level = 1
+        round = 1
+        lives = 3
+    }
+    
+    func levelUp() {
+        
+        round = round + 1
+        
+        if round == 4 {
+            round = 1
+            level = level + 1
+        }
+    }
+    
+    
     func status() {
         
         if lives > 2 {self.qbertLife3?.isHidden=false} else {self.qbertLife3?.isHidden=true}
@@ -363,7 +404,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         switch level {
         case 1 : level_count = 28
-        case 2 : level_count = 28
+        case 2 : level_count = 56
         case 3 : level_count = 56
         default : level_count = 56
         }
@@ -408,14 +449,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func touchDown(atPoint pos : CGPoint) {
         
         // Can only move Qbert
-        if /*self.GameState == .getready ||*/ self.GameState == .action {
+        if self.GameState == .action {
             QBert?.moveQbert(tap: pos)
         }
         // Baddies won't appear until the player first moves..
         
-        if GameState == .getready {
-            GameState = .action
-        }
+      if GameState == .attract {
+          GameState = .gamestart
+    }
         
     }
     
