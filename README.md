@@ -9,4 +9,4 @@ A SpriteKit game for iOS
 * Notification driven system to keep class interactions to the minimum. I like this approach. - done
 * Because events are sent even while characters are animating, and so potentially pass through each other, I should implement a sprite collision detection system. - Done
 * Sound effects - done
-
+* First flight build
