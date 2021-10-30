@@ -15,7 +15,7 @@ class QbertClass {
     
     private var qbert_x = 6
     private var qbert_y = 0
-    private var gamegrid = GameGrid()
+    private var gamegrid = GameGrid(withLevel: 1)
     private var myScene : SKScene?
     private var jumpCounter = 0
     
@@ -83,6 +83,14 @@ class QbertClass {
     func hide()
     {
         qbert?.isHidden = true
+    }
+    
+    func gotoPosition() {
+       // stop()
+        let p = gamegrid.convertToScreenFromGrid(X: qbert_x, Y: qbert_y)
+       // qbert?.position = p
+        let drop = SKAction.move(to: p, duration: 0.1)
+        qbert?.run(drop)
     }
     
     func reset()
@@ -213,6 +221,7 @@ class QbertClass {
         }
         else
         {
+            // Ok to use grid to check for lack of a tile.
             if gamegrid.getTile(X: qbert_x, Y: qbert_y) == 0 {
                 fall = true
             }

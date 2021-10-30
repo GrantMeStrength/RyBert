@@ -11,8 +11,7 @@ import GameplayKit
 class Tile {
     
     
-    private var gamegrid = GameGrid()
-    private let gamegridmaster = GameGrid()
+    private var gamegrid = GameGrid(withLevel: 1)
     private var tile_blue : SKSpriteNode?
     private var tile_yellow : SKSpriteNode?
     private var tile_red : SKSpriteNode?
@@ -51,6 +50,7 @@ class Tile {
         if let tile_yellow = tile_yellow {
             tile_yellow.size = CGSize(width: 288/3, height: 320/2.5)
             tile_yellow.zPosition = 1
+            tile_yellow.name = "Yellow"
         }
         
         
@@ -60,6 +60,7 @@ class Tile {
         if let tile_blue = tile_blue {
             tile_blue.size = CGSize(width: 288/3, height: 320/2.5)
             tile_blue.zPosition = 2
+            tile_blue.name = "Blue"
         }
         
         self.tile_red = SKSpriteNode(imageNamed: "square_red")
@@ -143,12 +144,15 @@ class Tile {
         // and don't need re-created.
         
         root!.removeAllChildren()
+        
+
+        
     }
     
     
     func flashTiles()
     {
-        let rotate1 = SKAction.rotate(byAngle: 45, duration: 0.1)
+        let rotate1 = SKAction.rotate(byAngle: 6.28319, duration: 0.2)
         let rotate2 = SKAction.rotate(toAngle: 0, duration: 0.1)
         let color1 = SKAction.colorize(with: UIColor(red: 1.0, green: 0.1, blue: 0.1, alpha: 1.0), colorBlendFactor: 1, duration: 0.2)
         let color2 = SKAction.colorize(with: UIColor(red: 0.1, green: 1.0, blue: 0.1, alpha: 1.0), colorBlendFactor: 1, duration: 0.2)
@@ -161,26 +165,46 @@ class Tile {
                                                         
             
         for tile in root!.children {
-            
             tile.run(SKAction.sequence([s1, s2, s3]))
-        
-            
+
         }
-        
-       
+    
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             for tile in self.root!.children {
                
                  tile.run(rotate2)
                 tile.run(color0)
-                
             
-        
             }
         }
-        
-        
+  
     }
+    
+    func danceTiles()
+    {
+        
+        
+        let size1 = SKAction.scale(to: CGSize(width: 288/4, height: 320/3.5), duration: 2.0)
+        let size2 = SKAction.scale(to: CGSize(width: 288/3, height: 320/2.5), duration: 2.0)
+        let color1 = SKAction.colorize(with: UIColor(red: 1.0, green: 0.1, blue: 0.1, alpha: 1.0), colorBlendFactor: 1, duration: 2.0)
+        let color2 = SKAction.colorize(with: UIColor(red: 0.1, green: 1.0, blue: 0.1, alpha: 1.0), colorBlendFactor: 1, duration: 2.0)
+        let color3 = SKAction.colorize(with: UIColor(red: 0.1, green: 0.1, blue: 1.0, alpha: 1.0), colorBlendFactor: 1, duration: 2.0)
+        let color0 = SKAction.colorize(with: UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0), colorBlendFactor: 1, duration: 2.0)
+       
+        let s1 = SKAction.group([color1, size1])
+        let s2 = SKAction.group([color2, color3])
+        let s3 = SKAction.group([color0, size2])
+                                                        
+       // root!.run(SKAction.rotate(byAngle: 6.28319, duration: 6))
+        
+        for tile in root!.children {
+            tile.run(SKAction.sequence([s1, s2, s3]))
+
+        }
+    
+    }
+    
+    
     
     
     func buildDisk() {
@@ -201,7 +225,7 @@ class Tile {
         let np = CGPoint(x: 0, y: 500-24)
         let fly = SKAction.move(to: np, duration: 1.5)
         
-        let vanish = SKAction.fadeAlpha(by: -1.0, duration: 0.1)
+        let vanish = SKAction.fadeOut(withDuration: 0.1)
         
         gamegrid.setTile(X: qbertpos.0, Y: qbertpos.1, tile: gamegrid.empty)
         
@@ -315,27 +339,34 @@ class Tile {
         for y in 0...6 {
             for x in 0...12 {
                 
-                // Reset the grid to good as new
-                gamegrid.setTile(X: x, Y: y, tile: gamegridmaster.getTile(X: x, Y: y))
+              
                 
                 if gamegrid.getTile(X: x, Y: y) == gamegrid.yellow {
                     let p = gamegrid.convertToScreenFromGrid(X: x, Y: y)
                     generateTile(atPoint: CGPoint(x: p.x, y: p.y - 40))
+                    print("X", terminator: "")
+                }
+                else
+                {
+                    print(gamegrid.getTile(X: x, Y: y), terminator: "")
                 }
                 
                 if gamegrid.getTile(X: x, Y: y) == gamegrid.diskLeft { // a disk
                     let p = gamegrid.convertToScreenFromGrid(X: x, Y: y)
                     disk_left!.position = CGPoint(x: p.x, y: p.y - 24)
+                   disk_left!.run(SKAction.fadeIn(withDuration: 1.0))
                     
                 }
                 
                 if gamegrid.getTile(X: x, Y: y) == gamegrid.diskRight { // Right disk
                     let p = gamegrid.convertToScreenFromGrid(X: x, Y: y)
                     disk_right!.position = CGPoint(x: p.x, y: p.y - 24)
+                    disk_right!.run(SKAction.fadeIn(withDuration: 1.0))
 
                 }
                 
             }
+            print()
         }
     }
 }

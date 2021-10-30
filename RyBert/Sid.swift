@@ -21,7 +21,7 @@ class Sid {
     
     private var sid_frames : [SKTexture] = []
     private var sid = sid_type(active: true, sprite: SKSpriteNode(), x: 6,y: 0, c: -5, mode: false)
-    private var gamegrid = GameGrid()
+    private var gamegrid = GameGrid(withLevel: 1)
     private var myScene : SKScene?
     
     private var soundJump = SKAction.playSoundFileNamed("jump-4.mp3", waitForCompletion: false)
@@ -155,6 +155,10 @@ class Sid {
                 
                 sid.x = sid.x + dx
                 sid.y = sid.y + dy
+                
+                
+                // It's ok to access the grid here as it's just checking for 0 which never changes
+                // as the game goes on.
                 
                 if gamegrid.getTile(X:  sid.x, Y:  sid.y) == 0
                 {

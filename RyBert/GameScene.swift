@@ -25,7 +25,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var roundLabel : SKLabelNode?
     private var scoreLabel : SKLabelNode?
     
-    
+    private var inactivityCounter = 1
     private var ticks = 0
     
     
@@ -43,6 +43,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private var soundPrize = SKAction.playSoundFileNamed("prize.mp3", waitForCompletion: false)
     private var soundTune = SKAction.playSoundFileNamed("tune.mp3", waitForCompletion: false)
+    private var soundTune2 = SKAction.playSoundFileNamed("tune-2.mp3", waitForCompletion: false)
+    private var soundCoin = SKAction.playSoundFileNamed("coin.mp3", waitForCompletion: false)
     
     
     enum gameState {
@@ -63,7 +65,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var GameStateCounter = 0
     
     func didBegin(_ contact: SKPhysicsContact) {
-
+        
         if GameState != .action { return }
         let event = ["collision": "blob"]
         let notification = Notification(name: .gameEvent, object: nil, userInfo: event)
@@ -71,7 +73,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
     }
     
-   
+    
     
     override func didMove(to view: SKView) {
         
@@ -105,10 +107,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         Blobs = Blob(withScene: self)
         Tiles = Tile(withScene: self)
+        
         Tiles?.drawTiles(round: round)
-        Grid = GameGrid()
-        //Tiles?.removeTiles()
-        TheSid = Sid(withScene: self)
+        Grid = GameGrid(withLevel: level)
+       TheSid = Sid(withScene: self)
         QBert = QbertClass(withScene: self)
         
         
@@ -132,23 +134,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             if let data = notification.userInfo as? [String: String] {
                 
-                for (name, score) in data {
+                for (name, thing) in data {
                     
                     if  name == "fall"
                     {
                         self.GameState = .died
                         
+                        
                         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                             
                             if self.lives > 0 {
-                            self.QBert!.reset()
+                                self.QBert!.reset()
                             }
                             else {
                                 self.QBert!.hide()
                             }
-                
+                            
                         }
-                        print("\(name) -> \(score) !")
+                        print("\(name) -> \(thing) !")
                         break
                     }
                     
@@ -156,14 +159,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     {
                         
                         self.QBert!.showRude()
+                        self.QBert!.gotoPosition()
                         
                         self.GameState = .died
-                        print("\(name) -> \(score) !")
+                        print("\(name) -> \(thing) !")
                         break
                     }
                     
                     if name == "Tile" {
-                        
+
                         let p = self.QBert?.getPosition()
                         self.drawAlternateTile(X: p!.0, Y: p!.1)
                     }
@@ -171,6 +175,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     if name == "Disk" {
                         
                         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                           
                             self.GameState = .action
                             let event = ["Tile": "fly"]
                             let notification = Notification(name: .gameEvent, object: nil, userInfo: event)
@@ -178,25 +183,34 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                         }
                         
                         self.GameState = .flying
-                        self.QBert?.flyingQbert()
-                        if (score == "left") {
+                      
+                       
+                        
+                        if (thing == "left") {
                             self.Tiles?.flyingDisk(left_side : true, qbertpos: (self.QBert?.getPosition())!)
                         }
                         else {
                             self.Tiles?.flyingDisk(left_side : false, qbertpos: (self.QBert?.getPosition())!)
                         }
                         
+                        self.QBert?.flyingQbert()
+                        
+                       
                     }
                     
-                    print("\(name) -> \(score) !")
+                    //print("\(name) -> \(thing) !")
                 }
             }
             
         }
         
-        
+        // Opening sound
+        self.run(soundTune2)
         
         let _ = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [self] timer in
+            
+            
+            
             
             ticks = ticks + 1
             
@@ -206,30 +220,41 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 
                 
             case .attract:
-                print(GameState)
-                status()
+              
+              
                 if GameStateCounter == 0
                 {
+                    status()
                     Blobs!.hide()
                     TheSid!.hide()
                     QBert!.hideRude()
                 }
+                
+                
+                if (GameStateCounter % 20 == 0)
+                {
+                    Tiles!.danceTiles()
+                }
+                
                 GameStateCounter = GameStateCounter + 1
                 
                 if (GameStateCounter % 5 == 0)
                 {
+                    
                     statusLabel?.text = "Tap to play"
                     statusLabel?.run(fadeTextInAndOut)
                 }
                 
             case .gamestart:
-                print(GameState)
                 prepareGame()
+                ResetGrid()
+                
                 status()
                 GameState = .levelstart
+                self.run(soundCoin)
                 
             case .levelstart:
-               prepareLevel()
+                prepareLevel()
                 status()
                 GameStateCounter = 0
                 GameState = .getready
@@ -238,10 +263,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             case .getready:
                 if GameStateCounter == 0
                 {
-                    if lives == 3 { arrows?.isHidden = false;
-                        
-                        arrows?.run(SKAction.sequence([fadeArrowsInAndOut,fadeArrowsInAndOut,fadeArrowsInAndOut] ))
-                    }
+                   
+                    
                     status()
                     QBert!.hideRude()
                     Blobs!.hide()
@@ -254,26 +277,35 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 GameStateCounter = GameStateCounter + 1
                 if GameStateCounter == 4 {
                     arrows?.isHidden = true
-                   GameState = .action
+                    GameState = .action
                     GameStateCounter = 0
                 }
                 
             case .action:
-               
+                
                 if level > 1 {
                     TheSid!.controlSid(qbert_position: (QBert?.getPosition())!)
                 }
                 Blobs!.controlBlobs()
-                 
+                
+                // If the user hasn't touched the screen in a long time, blink the arrows
+                inactivityCounter = inactivityCounter + 1
+                if inactivityCounter % 20 == 0 {
+                // Blink the arrows to remind folks to move - but only if they haven't touched the screen yet
+                if lives == 3 { arrows?.isHidden = false;
+                    
+                    arrows?.run(SKAction.sequence([fadeArrowsInAndOut,fadeArrowsInAndOut,fadeArrowsInAndOut] ))
+                }
+                }
+                
             case .died:
                 if GameStateCounter == 0
                 {
-                    print("Died")
                     QBert!.stop()
                     Blobs!.stop()
                     if level > 1 {
-                    TheSid!.stop()
-                    TheSid!.resetPosition()
+                        TheSid!.stop()
+                        TheSid!.resetPosition()
                     }
                     lives = lives - 1
                     status()
@@ -296,6 +328,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 if (GameStateCounter == 0) {
                     self.run(soundTune)
                     Tiles?.flashTiles()
+                    levelUp()
                     status()
                 }
                 else
@@ -343,6 +376,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
     }
     
+    func ResetGrid() {
+        
+        // Reset the grid array
+        Grid!.reset(gridlevel: level)
+    }
+    
     func prepareLevel() {
         
         setLevelDetails()
@@ -350,12 +389,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         QBert!.reset()
         TheSid!.reset()
         
-        // Delete any existing level
-        
-        //Tiles!.removeTiles()
-        
-        // Create a new one
-
+        // Delete any existing level and reset it to create a new one.
+        ResetGrid()
         Tiles!.drawTiles(round: round)
         
         // Reset positions and options
@@ -392,9 +427,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         levelLabel?.text = String(level)
         scoreLabel?.text = String(score)
         
-        switch round {
-        case 1 : targetTile?.texture = SKTexture(imageNamed: "square_blue")
-        default : targetTile?.texture = SKTexture(imageNamed: "square_red")
+        if level == 1 {
+            switch round {
+            case 1 : targetTile?.texture = SKTexture(imageNamed: "square_blue")
+            case 2 : targetTile?.texture = SKTexture(imageNamed: "square_grey_white")
+            case 3 : targetTile?.texture = SKTexture(imageNamed: "square_yuck_two")
+            default : targetTile?.texture = SKTexture(imageNamed: "square_red")
+            }
+        }
+        
+        if level > 1 {
+            switch round {
+            case 1 : targetTile?.texture = SKTexture(imageNamed: "square_red")
+            case 2 : targetTile?.texture = SKTexture(imageNamed: "square_grey_blue")
+            case 3 : targetTile?.texture = SKTexture(imageNamed: "square_yuck_three")
+            default : targetTile?.texture = SKTexture(imageNamed: "square_red")
+            }
         }
         
         
@@ -413,7 +461,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func freshtile() {
         self.level_count = self.level_count - 1
-        //print (self.level_count)
         self.score = self.score + 25
         self.scoreLabel?.text = String(self.score)
         
@@ -424,7 +471,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func drawAlternateTile(X : Int, Y: Int)
     {
-        
+       
         if Grid?.getTile(X: X, Y: Y) == 1 {
             Grid?.setTile(X: X, Y: Y, tile: 2)
             let p = Grid!.convertToScreenFromGrid(X: X, Y: Y)
@@ -451,12 +498,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // Can only move Qbert
         if self.GameState == .action {
             QBert?.moveQbert(tap: pos)
+            inactivityCounter = 0
         }
         // Baddies won't appear until the player first moves..
         
-      if GameState == .attract {
-          GameState = .gamestart
-    }
+        if GameState == .attract {
+            GameState = .gamestart
+        }
         
     }
     

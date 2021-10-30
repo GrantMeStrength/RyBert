@@ -18,22 +18,22 @@ class Blob {
         var y : Int
         var c : Int                     // Internal counter to control state, delay drawing etc.
         var speed : Int
+        var previousDx : Int
     }
     
     private var master_blob : SKSpriteNode?
-   
+    
+  
     private var soundFall = SKAction.playSoundFileNamed("jump-2.mp3", waitForCompletion: false)
     
     
     private var blobs : [blob_type] = [
-        blob_type(active: true, sprite: SKSpriteNode(), x: 1,y: 0, c: -5, speed: 1),
-        blob_type(active: true, sprite: SKSpriteNode(), x: 1,y: 0, c : -10, speed: 1),
-        blob_type(active: true, sprite: SKSpriteNode(), x: 1,y: 0, c : -7, speed: 1)
+        blob_type(active: true, sprite: SKSpriteNode(), x: 1,y: 0, c: -5, speed: 1, previousDx : 0),
+        blob_type(active: true, sprite: SKSpriteNode(), x: 1,y: 0, c : -10, speed: 1, previousDx : 0),
+        blob_type(active: true, sprite: SKSpriteNode(), x: 1,y: 0, c : -7, speed: 1, previousDx : 0)
     ]
    
-    private var gamegrid = GameGrid()
-    
-    
+    private var gamegrid = GameGrid(withLevel: 1)
     
     
     // Create blob
@@ -75,7 +75,7 @@ class Blob {
         for b in 0...2 {
                 blobs[b].sprite.isHidden = true
                 blobs[b].active = false
-                blobs[b].c = -6 + b*4
+                blobs[b].c = -8 + b*4
             }
         
         
@@ -101,11 +101,26 @@ class Blob {
             return
         }
         
+       
         blobs[b].y = blobs[b].y + 1
        
         
-        let dx = (Int.random(in: 0...1) == 0) ? -1 : 1
+        var dx = (Int.random(in: 0...1) == 0) ? -1 : 1
+        
+        
+        // Check for potentially falling through missing tile and change mind if so
+        if gamegrid.getTile(X: blobs[b].x + dx, Y: blobs[b].y) == 0 {
+            
+            dx = -dx
+            
+        }
+        
         blobs[b].x  =  blobs[b].x  + dx
+       
+        
+        // Need to keep the direction the blob was heading for the falling to look right
+        blobs[b].previousDx = dx
+       
         
         //1. Enlongate and jump up a little, and to the side
         
@@ -138,6 +153,7 @@ class Blob {
         blobs[b].x = (Int.random(in: 0...1) == 0) ? 5 : 7
         blobs[b].sprite.position = gamegrid.convertToScreenFromGrid(X: blobs[b].x, Y: -5)
         blobs[b].y = 1
+        blobs[b].sprite.zPosition = 5
         let moveAction = SKAction.move(to: gamegrid.convertToScreenFromGrid(X: blobs[b].x, Y: blobs[b].y), duration: 0.2)
         blobs[b].sprite.run(moveAction)
     }
@@ -146,9 +162,9 @@ class Blob {
     {
         // Fall the blob off the game grid..
         
-       // blobs[b].active = false
+        //blobs[b].sprite.zPosition = -1
         
-        let dx = (Int.random(in: 0...1) == 0) ? -1 : 1
+        let dx = blobs[b].previousDx // (Int.random(in: 0...1) == 0) ? -1 : 1
         
         let jump1 = SKAction.moveBy(x: CGFloat(dx*16), y: 32.0, duration: 0.2)
         let jump2 = SKAction.resize(toHeight: 56, duration: 0.2)
@@ -176,10 +192,8 @@ class Blob {
     func hide()
     {
         for b in 0...2 {
-            print("Hiding blob")
             blobs[b].sprite.isHidden = true
             blobs[b].sprite.position = CGPoint(x: -400,y: -400) // out of harm's way for a contact event
-            
          }
     }
     
