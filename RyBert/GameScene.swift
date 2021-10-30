@@ -77,6 +77,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func didMove(to view: SKView) {
         
+//        for family in UIFont.familyNames {
+//            print("\(family)")
+//
+//            for name in UIFont.fontNames(forFamilyName: family) {
+//                print("\(name)")
+//            }
+//        }
+        
         physicsWorld.contactDelegate = self
         //view.showsPhysics = true <- see outlines, useful for debugging
         

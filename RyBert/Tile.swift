@@ -344,7 +344,7 @@ class Tile {
                 if gamegrid.getTile(X: x, Y: y) == gamegrid.yellow {
                     let p = gamegrid.convertToScreenFromGrid(X: x, Y: y)
                     generateTile(atPoint: CGPoint(x: p.x, y: p.y - 40))
-                    print("X", terminator: "")
+                    //print("X", terminator: "")
                 }
                 else
                 {
@@ -366,7 +366,7 @@ class Tile {
                 }
                 
             }
-            print()
+            //print()
         }
     }
 }
