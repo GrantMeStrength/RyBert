@@ -17,6 +17,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var qbertLife1 : SKSpriteNode?
     private var qbertLife2 : SKSpriteNode?
     private var qbertLife3 : SKSpriteNode?
+   
+    private var littleA1 : SKSpriteNode?
+    private var littleA2 : SKSpriteNode?
+    private var littleA3 : SKSpriteNode?
+    private var littleA4 : SKSpriteNode?
+    
+    
     
     private var targetTile : SKSpriteNode?
     
@@ -129,6 +136,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.arrows = self.childNode(withName: "//arrowsSprite") as? SKSpriteNode
         arrows?.alpha = 0
         
+        self.littleA1 = self.childNode(withName: "//little1") as? SKSpriteNode
+        self.littleA2 = self.childNode(withName: "//little2") as? SKSpriteNode
+        self.littleA3 = self.childNode(withName: "//little3") as? SKSpriteNode
+        self.littleA4 = self.childNode(withName: "//little4") as? SKSpriteNode
+        
+        let blink1 = SKAction.sequence([SKAction.fadeOut(withDuration: 0.1), SKAction.wait(forDuration: 0.5), SKAction.fadeIn(withDuration: 0.1), SKAction.wait(forDuration: 0.5)])
+        let blink2 = SKAction.sequence([SKAction.fadeIn(withDuration: 0.1), SKAction.wait(forDuration: 0.5), SKAction.fadeOut(withDuration: 0.1), SKAction.wait(forDuration: 0.5)])
+        
+        
+        littleA1?.run(SKAction.repeatForever(blink1))
+        littleA2?.run(SKAction.repeatForever(blink2))
+        littleA3?.run(SKAction.repeatForever(blink2))
+        littleA4?.run(SKAction.repeatForever(blink1))
         
         let fadeTextInAndOut = SKAction.sequence([SKAction.fadeIn(withDuration: 0.2), SKAction.wait(forDuration: 1.0), SKAction.fadeOut(withDuration: 0.2) ])
         
@@ -182,7 +202,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     
                     if name == "Disk" {
                         
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.65) {
                            
                             self.GameState = .action
                             let event = ["Tile": "fly"]
