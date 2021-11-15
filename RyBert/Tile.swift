@@ -345,10 +345,7 @@ class Tile {
                     let p = gamegrid.convertToScreenFromGrid(X: x, Y: y)
                     generateTile(atPoint: CGPoint(x: p.x, y: p.y - 40))
                 }
-                else
-                {
-                    print(gamegrid.getTile(X: x, Y: y), terminator: "")
-                }
+                
                 
                 if gamegrid.getTile(X: x, Y: y) == gamegrid.diskLeft { // a disk
                     let p = gamegrid.convertToScreenFromGrid(X: x, Y: y)

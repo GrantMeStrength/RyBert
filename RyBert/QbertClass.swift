@@ -278,7 +278,7 @@ class QbertClass {
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
                 
-                if self.gamegrid.getTile(X: self.qbert_x, Y: self.qbert_y) == 1 {
+                if self.gamegrid.getTile(X: self.qbert_x, Y: self.qbert_y) == 1 || self.gamegrid.getTile(X: self.qbert_x, Y: self.qbert_y) == 2  {
                     
                     let event = ["Tile": "Left"]
                     let notification = Notification(name: .gameEvent, object: nil, userInfo: event)
@@ -303,9 +303,7 @@ class QbertClass {
                     // Flying disk!
                     self.gamegrid.setTile(X: self.qbert_x, Y: self.qbert_y, tile : 0)
                     
-                    print("Right desk, setting to empty")
-                    print(self.gamegrid.getTile(X: self.qbert_x, Y: self.qbert_y))
-                    
+                
                     let event = ["Disk": "right"]
                     let notification = Notification(name: .gameEvent, object: nil, userInfo: event)
                     NotificationCenter.default.post(notification)

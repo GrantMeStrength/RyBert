@@ -32,6 +32,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var levelLabel : SKLabelNode?
     private var roundLabel : SKLabelNode?
     private var scoreLabel : SKLabelNode?
+    private var highScoreLabel : SKLabelNode?
     
     private var inactivityCounter = 1
     private var ticks = 0
@@ -41,6 +42,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var level = 1
     private var lives = 3
     private var score = 0
+    private var highscore = 1000
     private var level_count = 0
     private var target_for_extra_life = 2000
 
@@ -77,9 +79,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func didBegin(_ contact: SKPhysicsContact) {
         
         if GameState != .action { return }
+        
+        // which blob? is it visible?
+       
+        if (contact.bodyA.node?.isHidden == true || contact.bodyB.node?.isHidden == true)
+        {
+           // Can't be collision as it's hidden
+            
+            return
+        }
+        
+        Blobs!.stop()
+        QBert!.stop()
+       
         let event = ["collision": "blob"]
         let notification = Notification(name: .gameEvent, object: nil, userInfo: event)
         NotificationCenter.default.post(notification)
+        
         
     }
     
@@ -108,6 +124,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             scoreLabel.text = String(score)
         }
         
+        self.highScoreLabel = self.childNode(withName: "//highScoreLabel") as? SKLabelNode
+        if let highScoreLabel = self.highScoreLabel {
+            highScoreLabel.text = String(highscore)
+        }
+        
+        
         self.levelLabel = self.childNode(withName: "//levelLabel") as? SKLabelNode
         if let levelLabel = self.levelLabel {
             levelLabel.text = String(level)
@@ -131,6 +153,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
        TheSid = Sid(withScene: self)
         QBert = QbertClass(withScene: self)
         
+        QBert?.hide()
         
         self.qbertLife1 = self.childNode(withName: "//qbertLife1") as? SKSpriteNode
         self.qbertLife2 = self.childNode(withName: "//qbertLife2") as? SKSpriteNode
@@ -439,7 +462,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func prepareGame() {
         
         score = 0
-        level = 3
+        level = 1
         round = 1
         lives = 3
     }
@@ -463,6 +486,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         roundLabel?.text = String(round)
         levelLabel?.text = String(level)
         scoreLabel?.text = String(score)
+        highScoreLabel?.text = String(highscore)
         
         if level < 3 {
             switch round {
@@ -500,13 +524,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.score = self.score + increment
         self.scoreLabel?.text = String(self.score)
         
-        if lives == 3 { return }
+        if self.score > self.highscore { highscore = score; self.highScoreLabel?.text = String(self.highscore) }
+        
+        if lives == 4 { return }
         
         if self.score > target_for_extra_life {
-            
+            self.run(soundPrize)
             lives = lives + 1
             target_for_extra_life = target_for_extra_life + 10000
-            
+            status()
         }
         
         
@@ -514,11 +540,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func freshtile() {
         self.level_count = self.level_count - 1
-//        self.score = self.score + 25
-//        self.scoreLabel?.text = String(self.score)
-//
+
         updateScore(increment: 25)
-        
         
         if self.level_count == 0 {
             self.GameState = .levelcomplete
@@ -529,7 +552,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     {
        
         if Grid?.getTile(X: X, Y: Y) == 1 {
-            Grid?.setTile(X: X, Y: Y, tile: 2)
+            Grid?.setTile(X: X, Y: Y, tile: 2) // Is this really setting the value?!
+            
             let p = Grid!.convertToScreenFromGrid(X: X, Y: Y)
             Tiles!.generateAlternateTile(atPoint: CGPoint(x: p.x, y: p.y - 40), tile: 2)
             freshtile()

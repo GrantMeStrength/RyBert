@@ -62,7 +62,7 @@ class GameGrid {
    
     
     private let x_start = -290
-    private let y_start = 350
+    private let y_start = 310
   
     
     init(withLevel: Int) {

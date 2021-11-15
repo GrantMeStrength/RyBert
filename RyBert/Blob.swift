@@ -54,8 +54,11 @@ class Blob {
     }
     
     blobs[0].sprite = (self.master_blob?.copy() as! SKSpriteNode?)!
+        blobs[0].sprite.name = "blob0"
     blobs[1].sprite = (self.master_blob?.copy() as! SKSpriteNode?)!
+        blobs[1].sprite.name = "blob1"
     blobs[2].sprite = (self.master_blob?.copy() as! SKSpriteNode?)!
+        blobs[2].sprite.name = "blob2"
     
         blobs[0].sprite.isHidden = true
         blobs[1].sprite.isHidden = true
@@ -83,7 +86,7 @@ class Blob {
             
         case 1: blobs[0].active =  true; blobs[1].active =  true; blobs[0].speed = 1; blobs[1].speed = 1;
         case 2: blobs[0].active =  true; blobs[1].active =  false; blobs[0].speed = 1; blobs[1].speed = 1;
-        case 3: blobs[0].active =  true; blobs[1].active =  true; blobs[2].active =  true; blobs[0].speed = 1; blobs[1].speed = 1; blobs[2].speed = 1;
+        case 3: blobs[0].active =  true; blobs[1].active =  true; /*blobs[2].active =  true;*/ blobs[0].speed = 1; blobs[1].speed = 1; //blobs[2].speed = 1;
         default: blobs[0].active =  true; blobs[1].active =  true; blobs[2].active =  true; blobs[0].speed = 1; blobs[1].speed = 1; blobs[2].speed = 2;
             
             
@@ -117,7 +120,7 @@ class Blob {
         
         blobs[b].x  =  blobs[b].x  + dx
        
-        
+
         // Need to keep the direction the blob was heading for the falling to look right
         blobs[b].previousDx = dx
        
@@ -162,8 +165,6 @@ class Blob {
     {
         // Fall the blob off the game grid..
         
-        //blobs[b].sprite.zPosition = -1
-        
         let dx = blobs[b].previousDx // (Int.random(in: 0...1) == 0) ? -1 : 1
         
         let jump1 = SKAction.moveBy(x: CGFloat(dx*16), y: 32.0, duration: 0.2)
@@ -197,6 +198,13 @@ class Blob {
          }
     }
     
+    func show() // for debugging
+    {
+        for b in 0...2 {
+            blobs[b].sprite.isHidden = false
+         }
+    }
+    
     func controlBlobs()
     {
         for b in 0...2 {
@@ -207,7 +215,6 @@ class Blob {
             }
             else {
               
-            
             blobs[b].c = blobs[b].c + 1
             
             if  blobs[b].c < 0
@@ -230,7 +237,4 @@ class Blob {
             }
        }
     }
-  
-   
-    
 }
