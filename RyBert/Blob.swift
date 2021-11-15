@@ -82,7 +82,7 @@ class Blob {
         switch level {
             
         case 1: blobs[0].active =  true; blobs[1].active =  true; blobs[0].speed = 1; blobs[1].speed = 1;
-        case 2: blobs[0].active =  true; blobs[1].active =  true; blobs[0].speed = 1; blobs[1].speed = 1;
+        case 2: blobs[0].active =  true; blobs[1].active =  false; blobs[0].speed = 1; blobs[1].speed = 1;
         case 3: blobs[0].active =  true; blobs[1].active =  true; blobs[2].active =  true; blobs[0].speed = 1; blobs[1].speed = 1; blobs[2].speed = 1;
         default: blobs[0].active =  true; blobs[1].active =  true; blobs[2].active =  true; blobs[0].speed = 1; blobs[1].speed = 1; blobs[2].speed = 2;
             

@@ -75,21 +75,27 @@ class GameGrid {
         for y in 0...6 {
             for x in 0...12 {
                 
+                GameGrid.grid[y][x] = level_1[y][x]
+                
+                /*
                 if gridlevel == 1 {
                 GameGrid.grid[y][x] = level_1[y][x]
                 }
                 
                 if gridlevel == 2 {
+                GameGrid.grid[y][x] = level_1[y][x]
+                }
+                
+                if gridlevel == 3 {
                 GameGrid.grid[y][x] = level_2[y][x]
                 }
                 
-                if gridlevel > 2 {
+                if gridlevel > 3 {
                 GameGrid.grid[y][x] = level_3[y][x]
                 }
-                
+                */
             }
         }
-        
     }
     
     func getTile(X: Int, Y: Int) -> Int

@@ -17,6 +17,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var qbertLife1 : SKSpriteNode?
     private var qbertLife2 : SKSpriteNode?
     private var qbertLife3 : SKSpriteNode?
+    private var qbertLife4 : SKSpriteNode?
    
     private var littleA1 : SKSpriteNode?
     private var littleA2 : SKSpriteNode?
@@ -41,6 +42,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var lives = 3
     private var score = 0
     private var level_count = 0
+    private var target_for_extra_life = 2000
+
     
     private var Blobs : Blob?
     private var Tiles : Tile?
@@ -132,6 +135,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.qbertLife1 = self.childNode(withName: "//qbertLife1") as? SKSpriteNode
         self.qbertLife2 = self.childNode(withName: "//qbertLife2") as? SKSpriteNode
         self.qbertLife3 = self.childNode(withName: "//qbertLife3") as? SKSpriteNode
+        self.qbertLife4 = self.childNode(withName: "//qbertLife4") as? SKSpriteNode
+       
         self.targetTile = self.childNode(withName: "//targetTile") as? SKSpriteNode
         self.arrows = self.childNode(withName: "//arrowsSprite") as? SKSpriteNode
         arrows?.alpha = 0
@@ -354,6 +359,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 
             case .levelcomplete:
                 if (GameStateCounter == 0) {
+                    let lc = (level * 3 + round) - 4
+                    var bonus = lc * 250
+                    if bonus > 5000 { bonus = 5000}
+                    updateScore(increment: 1000 + bonus)
                     self.run(soundTune)
                     Tiles?.flashTiles()
                     levelUp()
@@ -430,7 +439,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func prepareGame() {
         
         score = 0
-        level = 1
+        level = 3
         round = 1
         lives = 3
     }
@@ -447,7 +456,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     func status() {
-        
+        if lives > 3 {self.qbertLife4?.isHidden=false} else {self.qbertLife4?.isHidden=true}
         if lives > 2 {self.qbertLife3?.isHidden=false} else {self.qbertLife3?.isHidden=true}
         if lives > 1 {self.qbertLife2?.isHidden=false} else {self.qbertLife2?.isHidden=true}
         if lives > 0 {self.qbertLife1?.isHidden=false} else {self.qbertLife1?.isHidden=true}
@@ -455,7 +464,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         levelLabel?.text = String(level)
         scoreLabel?.text = String(score)
         
-        if level == 1 {
+        if level < 3 {
             switch round {
             case 1 : targetTile?.texture = SKTexture(imageNamed: "square_blue")
             case 2 : targetTile?.texture = SKTexture(imageNamed: "square_grey_white")
@@ -464,7 +473,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
         }
         
-        if level > 1 {
+        if level > 2 {
             switch round {
             case 1 : targetTile?.texture = SKTexture(imageNamed: "square_red")
             case 2 : targetTile?.texture = SKTexture(imageNamed: "square_grey_blue")
@@ -480,17 +489,36 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         switch level {
         case 1 : level_count = 28
-        case 2 : level_count = 56
+        case 2 : level_count = 28
         case 3 : level_count = 56
         default : level_count = 56
         }
     }
     
     
+    func updateScore(increment : Int) {
+        self.score = self.score + increment
+        self.scoreLabel?.text = String(self.score)
+        
+        if lives == 3 { return }
+        
+        if self.score > target_for_extra_life {
+            
+            lives = lives + 1
+            target_for_extra_life = target_for_extra_life + 10000
+            
+        }
+        
+        
+    }
+    
     func freshtile() {
         self.level_count = self.level_count - 1
-        self.score = self.score + 25
-        self.scoreLabel?.text = String(self.score)
+//        self.score = self.score + 25
+//        self.scoreLabel?.text = String(self.score)
+//
+        updateScore(increment: 25)
+        
         
         if self.level_count == 0 {
             self.GameState = .levelcomplete
