@@ -73,12 +73,13 @@ class Blob {
     
     
     
-    func reset(level : Int){
+    func reset(level : Int, round : Int){
         
         for b in 0...2 {
                 blobs[b].sprite.isHidden = true
                 blobs[b].active = false
                 blobs[b].c = -8 + b*4
+                blobs[b].sprite.isPaused = false
             }
         
         
@@ -92,12 +93,19 @@ class Blob {
             
         }
         
+        // Special case for level 1, round 1 - just 1 blob. Kelly Mode!
       
+        if level == 1 && round == 1 {
+            blobs[1].active =  false;
+            
+        }
     }
     
     func blobStep(b : Int)
     {
         // Step a blob down a step
+        
+        blobs[b].sprite.isPaused = false
         
         if blobs[b].y == 6 { // at bottom
             blobDisappear(b: b)
@@ -151,6 +159,7 @@ class Blob {
     func blobAppear(b : Int)
     {
         // Drop a blob onto the top of the game grid
+        blobs[b].sprite.isPaused = false
         blobs[b].sprite.isHidden = false
         blobs[b].active = true
         blobs[b].x = (Int.random(in: 0...1) == 0) ? 5 : 7
@@ -185,7 +194,8 @@ class Blob {
     
     func stop() {
         for b in 0...2 {
-            blobs[b].sprite.removeAction(forKey: "blump")
+            blobs[b].sprite.isPaused = true
+           // blobs[b].sprite.removeAction(forKey: "blump")
         }
     }
     
@@ -202,6 +212,7 @@ class Blob {
     {
         for b in 0...2 {
             blobs[b].sprite.isHidden = false
+            blobs[b].sprite.isPaused = false
          }
     }
     

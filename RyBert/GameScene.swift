@@ -12,7 +12,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private var statusLabel : SKLabelNode?
     private var arrows : SKSpriteNode?
+    private var demoStatusLevel : SKLabelNode?
     
+    private var CLS : SKShapeNode?
+    private var qbertDemo : SKSpriteNode?
+   
     
     private var qbertLife1 : SKSpriteNode?
     private var qbertLife2 : SKSpriteNode?
@@ -57,7 +61,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var soundTune = SKAction.playSoundFileNamed("tune.mp3", waitForCompletion: false)
     private var soundTune2 = SKAction.playSoundFileNamed("tune-2.mp3", waitForCompletion: false)
     private var soundCoin = SKAction.playSoundFileNamed("coin.mp3", waitForCompletion: false)
-    
+    private var soundJumpPause = SKAction.playSoundFileNamed("jump-3.mp3", waitForCompletion: false)
     
     enum gameState {
         
@@ -75,6 +79,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private var GameState : gameState = .attract
     private var GameStateCounter = 0
+    private var gsc_delay = 4
     
     func didBegin(_ contact: SKPhysicsContact) {
         
@@ -145,6 +150,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             statusLabel.alpha = 0.0
         }
         
+        self.demoStatusLevel = self.childNode(withName: "//demoLevelNumber") as? SKLabelNode
+        if let demoStatusLevel = self.demoStatusLevel {
+            demoStatusLevel.text = "Monkey"
+        }
+        
         Blobs = Blob(withScene: self)
         Tiles = Tile(withScene: self)
         
@@ -159,10 +169,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.qbertLife2 = self.childNode(withName: "//qbertLife2") as? SKSpriteNode
         self.qbertLife3 = self.childNode(withName: "//qbertLife3") as? SKSpriteNode
         self.qbertLife4 = self.childNode(withName: "//qbertLife4") as? SKSpriteNode
+        self.qbertDemo = self.childNode(withName: "//qbertdemo") as? SKSpriteNode
+        
        
         self.targetTile = self.childNode(withName: "//targetTile") as? SKSpriteNode
         self.arrows = self.childNode(withName: "//arrowsSprite") as? SKSpriteNode
         arrows?.alpha = 0
+        
+        self.CLS = self.childNode(withName: "//CLS") as? SKShapeNode
+        CLS?.alpha = 0
+        CLS?.position = CGPoint(x: 0, y: 0)
         
         self.littleA1 = self.childNode(withName: "//little1") as? SKSpriteNode
         self.littleA2 = self.childNode(withName: "//little2") as? SKSpriteNode
@@ -172,6 +188,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let blink1 = SKAction.sequence([SKAction.fadeOut(withDuration: 0.1), SKAction.wait(forDuration: 0.5), SKAction.fadeIn(withDuration: 0.1), SKAction.wait(forDuration: 0.5)])
         let blink2 = SKAction.sequence([SKAction.fadeIn(withDuration: 0.1), SKAction.wait(forDuration: 0.5), SKAction.fadeOut(withDuration: 0.1), SKAction.wait(forDuration: 0.5)])
         
+        //let fadeCLS = SKAction.fadeOut(withDuration: 2.5)
         
         littleA1?.run(SKAction.repeatForever(blink1))
         littleA2?.run(SKAction.repeatForever(blink2))
@@ -179,6 +196,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         littleA4?.run(SKAction.repeatForever(blink1))
         
         let fadeTextInAndOut = SKAction.sequence([SKAction.fadeIn(withDuration: 0.2), SKAction.wait(forDuration: 1.0), SKAction.fadeOut(withDuration: 0.2) ])
+        
+        //CLS?.run(fadeCLS)
         
         let fadeArrowsInAndOut = SKAction.sequence([SKAction.fadeIn(withDuration: 0.2), SKAction.wait(forDuration: 0.2), SKAction.fadeOut(withDuration: 0.2) ])
         
@@ -317,27 +336,60 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 
                 
             case .getready:
+                
                 if GameStateCounter == 0
                 {
-                   
+                    if round == 1 && lives >= 3
+                    {
+                        demoStatusLevel?.text = String(level)
+                        CLS?.position = CGPoint(x: 0, y: 0)
+                        CLS?.alpha = 1
+                        gsc_delay = 5
+                        
+                        // Do complicated QBert jumps
+                        
+                       Demo()
+                        
+                    }
+                    else
+                    {
+                        gsc_delay = 4
+                    }
                     
                     status()
                     QBert!.hideRude()
                     Blobs!.hide()
                     TheSid!.hide()
-                    Blobs!.reset(level: level)
+                    Blobs!.reset(level: level, round: round)
                     TheSid!.reset()
                     statusLabel?.text = "Get Ready"
                     statusLabel?.run(fadeTextInAndOut)
                 }
                 GameStateCounter = GameStateCounter + 1
-                if GameStateCounter == 4 {
+                
+                if (GameStateCounter == gsc_delay)
+                {
+                 print (gsc_delay)
                     arrows?.isHidden = true
                     GameState = .action
                     GameStateCounter = 0
                 }
                 
+               
+                
             case .action:
+                
+                if (GameStateCounter == 0)
+                {
+                    if round == 1 && lives >= 3
+                    {
+                        CLS?.position = CGPoint(x: 1000, y: 1000)
+                        CLS?.alpha = 0
+                       
+                    }
+                    
+                    
+                }
                 
                 if level > 1 {
                     TheSid!.controlSid(qbert_position: (QBert?.getPosition())!)
@@ -357,8 +409,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             case .died:
                 if GameStateCounter == 0
                 {
-                    QBert!.stop()
-                    Blobs!.stop()
+                    //QBert!.stop()
+                    //Blobs!.stop()
                     if level > 1 {
                         TheSid!.stop()
                         TheSid!.resetPosition()
@@ -436,6 +488,62 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
     }
     
+    func Demo() {
+    
+        // 1.
+        qbertDemo?.texture = SKTexture(imageNamed: "qbertR")
+        DemoJump(side: 2.5, height: 4, side2: 2.5, height2: -10)
+        qbertDemo?.run(soundJumpPause)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            
+            //2.
+            self.qbertDemo?.texture = SKTexture(imageNamed: "qbert")
+            self.DemoJump(side: -2.5, height: 4, side2: -2.5, height2: -10)
+            self.qbertDemo?.run(self.soundJumpPause)
+            
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            
+            //3.
+            self.qbertDemo?.texture = SKTexture(imageNamed: "qbertLU")
+            self.DemoJump(side: -2.5, height: 10, side2: -2.5, height2: -4)
+            self.qbertDemo?.run(self.soundJumpPause)
+            
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            
+            //3.
+            self.qbertDemo?.texture = SKTexture(imageNamed: "qbertRU")
+            self.DemoJump(side: 2.5, height: 10, side2: 2.5, height2: -4)
+            self.qbertDemo?.run(self.soundJumpPause)
+            
+        }
+        
+      
+        
+       // DemoJump(side: -2.5, height: 8, side2: -2.5, height2: -4)
+    }
+    
+    
+    func DemoJump(side : CGFloat, height: CGFloat, side2 : CGFloat, height2: CGFloat) {
+       
+        let jump1 = SKAction.moveBy(x: side, y: height, duration: 0.2)
+        let jump2 = SKAction.resize(toHeight: 72, duration: 0.2)
+        let jumpA = SKAction.group([jump1, jump2])
+       // let wait = SKAction.wait(forDuration: 0.1)
+        
+        let jump3 = SKAction.moveBy(x: side2, y : height2, duration: 0.2)
+        let jump4 = SKAction.resize(toHeight: 58, duration: 0.2)
+       // let jump5 = SKAction.resize(toHeight: 64, duration: 0.2)
+        
+        let jumpB = SKAction.group([jump3, jump4])
+        
+        qbertDemo?.run(SKAction.sequence([jumpA, jumpB]))
+    }
+    
     func ResetGrid() {
         
         // Reset the grid array
@@ -445,7 +553,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func prepareLevel() {
         
         setLevelDetails()
-        Blobs!.reset(level: level)
+        Blobs!.reset(level: level, round: round)
         QBert!.reset()
         TheSid!.reset()
         
@@ -455,9 +563,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         // Reset positions and options
         
-        Blobs!.reset(level: level)
+        Blobs!.reset(level: level, round: round)
         TheSid!.reset()
     }
+    
+    
     
     func prepareGame() {
         

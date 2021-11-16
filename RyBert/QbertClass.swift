@@ -76,7 +76,8 @@ class QbertClass {
     
     func stop() {
        
-            qbert!.removeAction(forKey: "jump")
+        qbert!.speed = 0.001
+         //   qbert!.removeAction(forKey: "jump")
         
     }
     
@@ -87,6 +88,7 @@ class QbertClass {
     
     func gotoPosition() {
        // stop()
+        qbert!.speed = 1
         let p = gamegrid.convertToScreenFromGrid(X: qbert_x, Y: qbert_y)
        // qbert?.position = p
         let drop = SKAction.move(to: p, duration: 0.1)
@@ -103,6 +105,7 @@ class QbertClass {
         qbert?.zPosition = 4
         jumpCounter = 0
         qbert?.isHidden = false
+        //qbert!.isPaused = false
     }
     
     func flyingQbert()
@@ -135,8 +138,12 @@ class QbertClass {
     }
     
     
+    
+    
     func moveQbert(tap: CGPoint)
     {
+        qbert!.speed = 1.0
+        
         if jumpCounter != 0  { return }
         
         // Map current player position to screen
