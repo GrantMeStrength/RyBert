@@ -99,6 +99,16 @@ class Blob {
             blobs[1].active =  false;
             
         }
+        
+        // for testing turn all off
+        
+//        for b in 0...2 {
+//                blobs[b].sprite.isHidden = true
+//                blobs[b].active = false
+//                blobs[b].c = -8 + b*4
+//                blobs[b].sprite.isPaused = false
+//            }
+        
     }
     
     func blobStep(b : Int)

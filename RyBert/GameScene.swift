@@ -41,6 +41,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var inactivityCounter = 1
     private var ticks = 0
     
+    private var display_demo_once_per_level = true
     
     private var round = 1
     private var level = 1
@@ -48,7 +49,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var score = 0
     private var highscore = 1000
     private var level_count = 0
-    private var target_for_extra_life = 2000
+    private var target_for_extra_life = 8000
+    private var disks_per_level = 2
 
     
     private var Blobs : Blob?
@@ -108,13 +110,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func didMove(to view: SKView) {
         
-//        for family in UIFont.familyNames {
-//            print("\(family)")
-//
-//            for name in UIFont.fontNames(forFamilyName: family) {
-//                print("\(name)")
-//            }
-//        }
+
         
         physicsWorld.contactDelegate = self
         //view.showsPhysics = true <- see outlines, useful for debugging
@@ -211,6 +207,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 
                 for (name, thing) in data {
                     
+                    if name == "score" {
+                        if thing == "sidfall" {
+                            
+                            self.updateScore(increment: 1000)
+                        }
+                        
+                        
+                    }
+                    
                     if  name == "fall"
                     {
                         self.GameState = .died
@@ -226,7 +231,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                             }
                             
                         }
-                        print("\(name) -> \(thing) !")
+                        //print("\(name) -> \(thing) !")
                         break
                     }
                     
@@ -237,7 +242,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                         self.QBert!.gotoPosition()
                         
                         self.GameState = .died
-                        print("\(name) -> \(thing) !")
+                       // print("\(name) -> \(thing) !")
                         break
                     }
                     
@@ -249,6 +254,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     
                     if name == "Disk" {
                         
+                        // Try to stop case of disk carrying away bert
+                        // _just_ as he is killed
+                        
+                        if self.GameState == .died {
+                            return
+                        }
+                        
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1.65) {
                            
                             self.GameState = .action
@@ -259,6 +271,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                         
                         self.GameState = .flying
                       
+                        self.disks_per_level = self.disks_per_level - 1
                        
                         
                         if (thing == "left") {
@@ -272,8 +285,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                         
                        
                     }
-                    
-                    //print("\(name) -> \(thing) !")
+
                 }
             }
             
@@ -339,7 +351,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 
                 if GameStateCounter == 0
                 {
-                    if round == 1 && lives >= 3
+                    if round == 1 && display_demo_once_per_level
                     {
                         demoStatusLevel?.text = String(level)
                         CLS?.position = CGPoint(x: 0, y: 0)
@@ -369,7 +381,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 
                 if (GameStateCounter == gsc_delay)
                 {
-                 print (gsc_delay)
+                    //print (gsc_delay)
                     arrows?.isHidden = true
                     GameState = .action
                     GameStateCounter = 0
@@ -381,18 +393,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 
                 if (GameStateCounter == 0)
                 {
-                    if round == 1 && lives >= 3
+                    if round == 1 && display_demo_once_per_level
                     {
                         CLS?.position = CGPoint(x: 1000, y: 1000)
                         CLS?.alpha = 0
-                       
+                        display_demo_once_per_level = false
                     }
                     
                     
                 }
                 
                 if level > 1 {
-                    TheSid!.controlSid(qbert_position: (QBert?.getPosition())!)
+                    TheSid!.controlSid(qbert_position: (QBert?.getPosition())!, onDisk: false)
                 }
                 Blobs!.controlBlobs()
                 
@@ -400,7 +412,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 inactivityCounter = inactivityCounter + 1
                 if inactivityCounter % 20 == 0 {
                 // Blink the arrows to remind folks to move - but only if they haven't touched the screen yet
-                if lives == 3 { arrows?.isHidden = false;
+                
+                    
+                    if lives == 3 { arrows?.isHidden = false;
                     
                     arrows?.run(SKAction.sequence([fadeArrowsInAndOut,fadeArrowsInAndOut,fadeArrowsInAndOut] ))
                 }
@@ -409,8 +423,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             case .died:
                 if GameStateCounter == 0
                 {
-                    //QBert!.stop()
-                    //Blobs!.stop()
+                
                     if level > 1 {
                         TheSid!.stop()
                         TheSid!.resetPosition()
@@ -437,7 +450,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     let lc = (level * 3 + round) - 4
                     var bonus = lc * 250
                     if bonus > 5000 { bonus = 5000}
-                    updateScore(increment: 1000 + bonus)
+                
+                    updateScore(increment: (1000 + bonus) + (disks_per_level * 500))
+                    
                     self.run(soundTune)
                     Tiles?.flashTiles()
                     levelUp()
@@ -457,6 +472,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 
             case .flying:
                 
+                // Is this going to work? If Sid is on the right place,
+                // he will jump and die
+                
+                if level > 1 {
+                    
+                    TheSid!.controlSid(qbert_position: (QBert?.getPosition())!, onDisk: true)
+                }
                 
                 status()
                 
@@ -565,12 +587,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         Blobs!.reset(level: level, round: round)
         TheSid!.reset()
+        
+        // Reset disk count
+        
+        disks_per_level = 2
     }
     
     
     
     func prepareGame() {
-        
+        display_demo_once_per_level = true
         score = 0
         level = 1
         round = 1
@@ -584,6 +610,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if round == 4 {
             round = 1
             level = level + 1
+            display_demo_once_per_level = true
         }
     }
     
@@ -638,14 +665,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if lives == 4 { return }
         
-        if self.score > target_for_extra_life {
+        if self.score >= target_for_extra_life {
             self.run(soundPrize)
             lives = lives + 1
             target_for_extra_life = target_for_extra_life + 10000
             status()
         }
-        
-        
+    
     }
     
     func freshtile() {

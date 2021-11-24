@@ -10,3 +10,20 @@ A SpriteKit game for iOS
 * Because events are sent even while characters are animating, and so potentially pass through each other, I should implement a sprite collision detection system. - Done
 * Sound effects - done
 * First flight build
+
+
+* Sid will jump to death when player on disk - extra points
+* Nicer "level" display with ring
+* Better difficulty ramp
+
+
+
+
+// list fonts
+//        for family in UIFont.familyNames {
+//            print("\(family)")
+//
+//            for name in UIFont.fontNames(forFamilyName: family) {
+//                print("\(name)")
+//            }
+//        }

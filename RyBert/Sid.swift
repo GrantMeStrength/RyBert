@@ -26,6 +26,7 @@ class Sid {
     
     private var soundJump = SKAction.playSoundFileNamed("jump-4.mp3", waitForCompletion: false)
     private var soundDrop = SKAction.playSoundFileNamed("jump-2.mp3", waitForCompletion: false)
+    private var soundFall = SKAction.playSoundFileNamed("fall.mp3", waitForCompletion: false)
     
     
     init(withScene theScene: SKScene) {
@@ -72,14 +73,36 @@ class Sid {
         sid.sprite.position = CGPoint(x: -400, y: -400)
     }
     
-    func sidStep(QX: Int, QY: Int)
+     func sidJump(_ dx: Int) {
+        // Animate the move
+        
+        //1. Enlongate and jump up a little, and to the side
+        
+        let jump1 = SKAction.moveBy(x: CGFloat(dx*16), y: 32.0, duration: 0.2)
+        let jump2 = SKAction.resize(toHeight: 86, duration: 0.2)
+        let jump = SKAction.group([jump1, jump2])
+        
+        //2. Shrink to normal at new location
+        
+        let drop1 = SKAction.move(to: gamegrid.convertToScreenFromGrid(X: sid.x, Y: sid.y), duration: 0.2)
+        let drop2 = SKAction.resize(toHeight: 48, duration: 0.2)
+        let drop = SKAction.group([drop1, drop2])
+        
+        
+        //3. Compress a little and then return to normal
+        
+        sid.sprite.run(soundJump)
+        let rebound = SKAction.resize(toHeight: 64, duration: 0.2)
+        sid.sprite.run(SKAction.sequence([jump, drop, rebound]))
+    }
+    
+    func sidStep(QX: Int, QY: Int, QDisk : Bool)
     {
         // Step a blob down a step
         
         sid.sprite.isHidden = false
         
-        
-        if sid.mode == false {
+        if sid.mode == false { // Still a ball
             
             sid.y = sid.y + 1
             let direction = Int.random(in: 0...1) // 0 or 1
@@ -133,6 +156,49 @@ class Sid {
                 
                 sid.c = 7
                 
+                // Check in case Sid can jump off and fall
+                // If Sid is on a specific square, and Qbert
+                // is on a disk, then jump off the edge.
+                // How can I find out if qbert is on a disk?
+                // QDisk is true if Bert is on a disk
+                                
+                if QDisk && ((sid.x == 2 && sid.y == 4) || (sid.x == 10 && sid.y == 4)) {
+                    
+                    // SID FALL
+                    var dxs = -48
+                    if sid.x == 10 { dxs = -dxs }
+                    
+                    sid.sprite.run(soundFall)
+                    
+                    // Set target to 2,4 and jump
+                    
+                    let jump1 = SKAction.moveBy(x: CGFloat(dxs), y: 32.0, duration: 0.2)
+                    let jump2 = SKAction.resize(toHeight: 86, duration: 0.2)
+                    let jump = SKAction.group([jump1, jump2])
+                    
+                    //2. Shrink to normal at new location
+                    
+                    let drop1 = SKAction.moveBy(x: CGFloat(dxs), y: -700, duration: 0.5)
+                    let drop2 = SKAction.resize(toHeight: 48, duration: 0.2)
+                    let drop = SKAction.group([drop1, drop2])
+                    
+                    sid.sprite.run(SKAction.sequence([jump, drop]))
+                    
+                    // set Sid to not be alive
+                    
+                    sid.active = false
+                    
+                    // Notification to add lots of points to score
+                    
+                    let event = ["score": "sidfall"]
+                    let notification = Notification(name: .gameEvent, object: nil, userInfo: event)
+                    NotificationCenter.default.post(notification)
+                    
+                    return
+                    
+                    
+                }
+                
                 var dx = -1
                 var dy = -1
                 
@@ -156,43 +222,13 @@ class Sid {
                 sid.x = sid.x + dx
                 sid.y = sid.y + dy
                 
-                
-                // It's ok to access the grid here as it's just checking for 0 which never changes
-                // as the game goes on.
-                
                 if gamegrid.getTile(X:  sid.x, Y:  sid.y) == 0
                 {
                     sid.x = sid.x - dx
                     sid.y = sid.y - dy
                 }
                 
-                
-                
-                // Animate the move
-                
-                //1. Enlongate and jump up a little, and to the side
-                
-                let jump1 = SKAction.moveBy(x: CGFloat(dx*16), y: 32.0, duration: 0.2)
-                let jump2 = SKAction.resize(toHeight: 86, duration: 0.2)
-                let jump = SKAction.group([jump1, jump2])
-                
-                //2. Shrink to normal at new location
-                
-                let drop1 = SKAction.move(to: gamegrid.convertToScreenFromGrid(X: sid.x, Y: sid.y), duration: 0.2)
-                let drop2 = SKAction.resize(toHeight: 48, duration: 0.2)
-                let drop = SKAction.group([drop1, drop2])
-                
-                
-                //3. Compress a little and then return to normal
-                
-                sid.sprite.run(soundJump)
-                let rebound = SKAction.resize(toHeight: 64, duration: 0.2)
-                sid.sprite.run(SKAction.sequence([jump, drop, rebound]))
-                
-                
-                
-                
-                // sid.sprite.run(SKAction.move(to: gamegrid.convertToScreenFromGrid(X: sid.x, Y: sid.y), duration: 0.2))
+                sidJump(dx)
                 
             }
             
@@ -204,18 +240,17 @@ class Sid {
     }
     
     
-    
-    
+   
     func sidAppear()
     {
         // Drop a blob onto the top of the game grid
         
+        sid.active = true
         sid.x = (Int.random(in: 0...1) == 0) ? 5 : 7
         sid.sprite.position = gamegrid.convertToScreenFromGrid(X: sid.x, Y: -5)
         
         //sid.sprite.position = CGPoint(x: 0, y: 500)
         sid.sprite.isHidden = false
-        //sid.x = 6
         sid.y = 1
         let moveAction = SKAction.move(to: gamegrid.convertToScreenFromGrid(X: sid.x, Y: sid.y), duration: 0.2)
         sid.sprite.run(moveAction)
@@ -253,6 +288,7 @@ class Sid {
     
     func reset()
     {
+        sid.active = true
         sid.mode = false
         sid.sprite.texture = sid_frames[0]
         sid.sprite.isHidden = true
@@ -262,7 +298,7 @@ class Sid {
     
    
     
-    func controlSid(qbert_position : (Int, Int))
+    func controlSid(qbert_position : (Int, Int), onDisk: Bool)
     {
         if sid.active == false {
             sid.sprite.isHidden = true
@@ -283,7 +319,7 @@ class Sid {
             else
                 if sid.c > 0
             {
-                    sidStep(QX: qbert_position.0, QY: qbert_position.1)
+                    sidStep(QX: qbert_position.0, QY: qbert_position.1, QDisk: onDisk)
                 }
             
         }
