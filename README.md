@@ -1,6 +1,12 @@
 #  RyBert
 
-A SpriteKit game for iOS
+![](bert.png)
+
+## A SpriteKit game for iOS based
+
+Written in Swift as an experiment with design patterns - specifically using notifications to message separated game components.
+
+## Progress
 
 * Have two types of baddies (blobs and sid), tiles, disks and gamegrid classes - done
 * Need to move player to its own class - Done
@@ -9,4 +15,4 @@ A SpriteKit game for iOS
 * Notification driven system to keep class interactions to the minimum. I like this approach. - done
 * Because events are sent even while characters are animating, and so potentially pass through each other, I should implement a sprite collision detection system. - Done
 * Sound effects - done
-* First flight build
+* First flight build - done and shared. Success!
