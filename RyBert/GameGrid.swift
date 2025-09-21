@@ -6,7 +6,7 @@
 //
 
 
-// Create one grid that is available to all classes
+// Shared game grid accessible to all game classes
 
 import SpriteKit
 import GameplayKit
@@ -14,12 +14,12 @@ import GameplayKit
 class GameGrid {
     
   
-    public let empty = 0
-    public let  yellow = 1
-    public let  blue = 2
-    public let  red = 3
-    public let  diskLeft = 4
-    public let  diskRight = 5
+    public let empty = GameConstants.empty
+    public let  yellow = GameConstants.yellow
+    public let  blue = GameConstants.blue
+    public let  red = GameConstants.red
+    public let  diskLeft = GameConstants.diskLeft
+    public let  diskRight = GameConstants.diskRight
    
     
     static var grid : [[Int]] = [
@@ -106,8 +106,8 @@ class GameGrid {
     
     func convertToScreenFromGrid(X: Int, Y: Int) -> CGPoint
     {
-        let xx = x_start + X * (288/3)/2
-        let yy = y_start - Y * 288/3
+        let xx = x_start + X * GameConstants.gridTileSpacing/2
+        let yy = y_start - Y * GameConstants.gridTileSpacing
         return CGPoint(x: xx, y: yy)
     }
     

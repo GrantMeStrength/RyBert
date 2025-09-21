@@ -36,18 +36,18 @@ class Blob {
     private var gamegrid = GameGrid(withLevel: 1)
     
     
-    // Create blob
+    // Initialize blob sprites and physics
     
     init(withScene theScene: SKScene) {
     
     self.master_blob = SKSpriteNode(imageNamed: "blob")
     if let master_blob = master_blob {
-        master_blob.size = CGSize(width: 48, height: 48)
-        master_blob.zPosition = 5
-        master_blob.physicsBody = SKPhysicsBody(texture: master_blob.texture!, size: CGSize(width: 4, height: 4))
+        master_blob.size = GameConstants.blobSize
+        master_blob.zPosition = GameConstants.blobZPosition
+        master_blob.physicsBody = SKPhysicsBody(texture: master_blob.texture!, size: GameConstants.blobPhysicsSize)
         master_blob.physicsBody?.collisionBitMask = 0
-        master_blob.physicsBody?.contactTestBitMask = 1     // test for contact with Qbert code
-        master_blob.physicsBody?.categoryBitMask = 2 // Code for blob
+        master_blob.physicsBody?.contactTestBitMask = GameConstants.qbertPhysicsCategory
+        master_blob.physicsBody?.categoryBitMask = GameConstants.blobPhysicsCategory
         master_blob.physicsBody?.affectedByGravity = false
         master_blob.physicsBody?.isDynamic = true
        
@@ -75,7 +75,7 @@ class Blob {
         for b in 0...2 {
                 blobs[b].sprite.isHidden = true
                 blobs[b].active = false
-                blobs[b].c = -8 + b*4
+                blobs[b].c = GameConstants.blobInitialDelay[b]
             }
         
         
@@ -94,7 +94,7 @@ class Blob {
     
     func blobStep(b : Int)
     {
-        // Step a blob down a step
+        // Move blob down one row on the pyramid
         
         if blobs[b].y == 6 { // at bottom
             blobDisappear(b: b)
@@ -108,7 +108,7 @@ class Blob {
         var dx = (Int.random(in: 0...1) == 0) ? -1 : 1
         
         
-        // Check for potentially falling through missing tile and change mind if so
+        // Avoid jumping onto empty spaces
         if gamegrid.getTile(X: blobs[b].x + dx, Y: blobs[b].y) == 0 {
             
             dx = -dx
@@ -118,27 +118,26 @@ class Blob {
         blobs[b].x  =  blobs[b].x  + dx
        
         
-        // Need to keep the direction the blob was heading for the falling to look right
+        // Store direction for consistent falling animation
         blobs[b].previousDx = dx
        
         
-        //1. Enlongate and jump up a little, and to the side
+        // Animate blob jump with stretch and movement
         
-        let jump1 = SKAction.moveBy(x: CGFloat(dx*16), y: 32.0, duration: 0.2)
-        let jump2 = SKAction.resize(toHeight: 56, duration: 0.2)
+        let jump1 = SKAction.moveBy(x: CGFloat(dx) * GameConstants.jumpSideDistance, y: GameConstants.jumpUpHeight, duration: GameConstants.jumpDuration)
+        let jump2 = SKAction.resize(toHeight: 56, duration: GameConstants.jumpDuration)
         let jump = SKAction.group([jump1, jump2])
         
-        
-        //2. Shrink to normal at new location
-        let drop1 = SKAction.move(to: gamegrid.convertToScreenFromGrid(X: blobs[b].x, Y: blobs[b].y), duration: 0.2)
-        let drop2 = SKAction.resize(toHeight: 34, duration: 0.2)
+        // Land at new position
+        let drop1 = SKAction.move(to: gamegrid.convertToScreenFromGrid(X: blobs[b].x, Y: blobs[b].y), duration: GameConstants.jumpDuration)
+        let drop2 = SKAction.resize(toHeight: 34, duration: GameConstants.jumpDuration)
         
         let drop = SKAction.group([drop1, drop2])
         
         
-        //3. Compress a little and then return to normal
+        // Bounce animation on landing
         
-        let rebound = SKAction.resize(toHeight: 40, duration: 0.2)
+        let rebound = SKAction.resize(toHeight: 40, duration: GameConstants.jumpDuration)
        
         self.blobs[b].sprite.run(soundFall)
         blobs[b].sprite.run(SKAction.sequence([jump, drop, rebound]), withKey: "blump")
@@ -147,32 +146,31 @@ class Blob {
     
     func blobAppear(b : Int)
     {
-        // Drop a blob onto the top of the game grid
+        // Spawn blob at top of pyramid
         blobs[b].sprite.isHidden = false
         blobs[b].active = true
         blobs[b].x = (Int.random(in: 0...1) == 0) ? 5 : 7
         blobs[b].sprite.position = gamegrid.convertToScreenFromGrid(X: blobs[b].x, Y: -5)
         blobs[b].y = 1
-        blobs[b].sprite.zPosition = 5
-        let moveAction = SKAction.move(to: gamegrid.convertToScreenFromGrid(X: blobs[b].x, Y: blobs[b].y), duration: 0.2)
+        blobs[b].sprite.zPosition = GameConstants.blobZPosition
+        let moveAction = SKAction.move(to: gamegrid.convertToScreenFromGrid(X: blobs[b].x, Y: blobs[b].y), duration: GameConstants.jumpDuration)
         blobs[b].sprite.run(moveAction)
     }
     
     func blobDisappear(b : Int)
     {
-        // Fall the blob off the game grid..
+        // Animate blob falling off bottom of pyramid
         
-        //blobs[b].sprite.zPosition = -1
         
-        let dx = blobs[b].previousDx // (Int.random(in: 0...1) == 0) ? -1 : 1
+        let dx = blobs[b].previousDx
         
-        let jump1 = SKAction.moveBy(x: CGFloat(dx*16), y: 32.0, duration: 0.2)
-        let jump2 = SKAction.resize(toHeight: 56, duration: 0.2)
+        let jump1 = SKAction.moveBy(x: CGFloat(dx) * GameConstants.jumpSideDistance, y: GameConstants.jumpUpHeight, duration: GameConstants.jumpDuration)
+        let jump2 = SKAction.resize(toHeight: 56, duration: GameConstants.jumpDuration)
         let jump = SKAction.group([jump1, jump2])
         
-        //2. Shrink to normal at new location
-        let drop1 = SKAction.moveBy(x: CGFloat(dx*16), y: -400.0, duration: 0.2)
-        let drop2 = SKAction.resize(toHeight: 48, duration: 0.2)
+        // Fall off screen
+        let drop1 = SKAction.moveBy(x: CGFloat(dx) * GameConstants.jumpSideDistance, y: -400.0, duration: GameConstants.jumpDuration)
+        let drop2 = SKAction.resize(toHeight: 48, duration: GameConstants.jumpDuration)
         let drop = SKAction.group([drop1, drop2])
         
         blobs[b].sprite.run(SKAction.sequence([jump, drop]))

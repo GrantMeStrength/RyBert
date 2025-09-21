@@ -34,14 +34,13 @@ class QbertClass {
         
         self.qbert = SKSpriteNode(imageNamed: "qbert")
         if let qbert = qbert {
-            qbert.size = CGSize(width: 64, height: 64)
-            qbert.zPosition = 4
+            qbert.size = GameConstants.qbertSize
+            qbert.zPosition = GameConstants.qbertZPosition
             qbert.position = gamegrid.convertToScreenFromGrid(X: qbert_x, Y: qbert_y)
-            //qbert.physicsBody = SKPhysicsBody(texture: qbert.texture!, size: qbert.frame.size)
-            qbert.physicsBody = SKPhysicsBody(circleOfRadius: 20)
+            qbert.physicsBody = SKPhysicsBody(circleOfRadius: GameConstants.qbertPhysicsRadius)
             qbert.physicsBody?.collisionBitMask = 0
             qbert.physicsBody?.contactTestBitMask = 0
-            qbert.physicsBody?.categoryBitMask = 1          // the code for Qbert
+            qbert.physicsBody?.categoryBitMask = GameConstants.qbertPhysicsCategory
             qbert.physicsBody?.affectedByGravity = false
             qbert.physicsBody?.isDynamic = true
             
@@ -50,8 +49,8 @@ class QbertClass {
         
         self.rude = SKSpriteNode(imageNamed: "rude")
         if let rude = rude {
-            rude.size = CGSize(width: 348/2, height: 172/2)
-            rude.zPosition = 7
+            rude.size = GameConstants.qbertRudeSize
+            rude.zPosition = GameConstants.rudeZPosition
             rude.position = CGPoint(x:32, y:64)
             rude.isHidden = true
             qbert?.addChild(rude)
@@ -86,9 +85,7 @@ class QbertClass {
     }
     
     func gotoPosition() {
-       // stop()
         let p = gamegrid.convertToScreenFromGrid(X: qbert_x, Y: qbert_y)
-       // qbert?.position = p
         let drop = SKAction.move(to: p, duration: 0.1)
         qbert?.run(drop)
     }
@@ -100,21 +97,21 @@ class QbertClass {
         let p = gamegrid.convertToScreenFromGrid(X: qbert_x, Y: qbert_y)
         qbert?.position = p
         qbert?.texture = SKTexture(imageNamed: "qbert")
-        qbert?.zPosition = 4
+        qbert?.zPosition = GameConstants.qbertZPosition
         jumpCounter = 0
         qbert?.isHidden = false
     }
     
     func flyingQbert()
     {
-        let np = CGPoint(x: 0, y: 500)
-        let fly = SKAction.move(to: np, duration: 1.5)
+        let np = CGPoint(x: 0, y: GameConstants.flyY)
+        let fly = SKAction.move(to: np, duration: GameConstants.flyDuration)
         
         qbert_x = 6
         qbert_y = 0
         let p = gamegrid.convertToScreenFromGrid(X: qbert_x, Y: qbert_y)
         
-        let drop = SKAction.move(to: p, duration: 0.2)
+        let drop = SKAction.move(to: p, duration: GameConstants.jumpDuration)
         
         self.qbert?.run(soundFly)
         qbert?.run(SKAction.sequence([fly, drop]))
@@ -139,15 +136,8 @@ class QbertClass {
     {
         if jumpCounter != 0  { return }
         
-        // Map current player position to screen
-        
+        // Calculate Q*bert's current screen position and determine jump direction from tap
         let p = gamegrid.convertToScreenFromGrid(X: qbert_x, Y: qbert_y)
-        
-        //   let p = CGPoint(x: 0, y: 0 )
-        
-        // Use tap co-ords to see which direction the player wants to jump
-        
-        
         
         let h = tap.x - p.x
         let v = tap.y - p.y
@@ -161,8 +151,8 @@ class QbertClass {
             qbert_x = qbert_x + 1
             qbert_y = qbert_y - 1
             
-            height = 128
-            side = 16
+            height = GameConstants.jumpDownHeight
+            side = GameConstants.jumpSideDistance
             
             qbert?.texture = SKTexture(imageNamed: "qbertRU")
             
@@ -175,8 +165,8 @@ class QbertClass {
             qbert_x = qbert_x + 1
             qbert_y = qbert_y + 1
             
-            height = 32
-            side = 16
+            height = GameConstants.jumpUpHeight
+            side = GameConstants.jumpSideDistance
             
             qbert?.texture = SKTexture(imageNamed: "qbertR")
             
@@ -189,8 +179,8 @@ class QbertClass {
             qbert_x = qbert_x - 1
             qbert_y = qbert_y - 1
             
-            height = 128
-            side = -16
+            height = GameConstants.jumpDownHeight
+            side = -GameConstants.jumpSideDistance
             
             qbert?.texture = SKTexture(imageNamed: "qbertLU")
             
@@ -203,15 +193,14 @@ class QbertClass {
             qbert_x = qbert_x - 1
             qbert_y = qbert_y + 1
             
-            height = 32
-            side = -16
+            height = GameConstants.jumpUpHeight
+            side = -GameConstants.jumpSideDistance
             
             qbert?.texture = SKTexture(imageNamed: "qbert")
             
         }
         
-        
-        // Check for fall
+        // Check if Q*bert will fall off the pyramid
         
         var fall = false
         
@@ -221,7 +210,7 @@ class QbertClass {
         }
         else
         {
-            // Ok to use grid to check for lack of a tile.
+            // Check if landing on an empty space
             if gamegrid.getTile(X: qbert_x, Y: qbert_y) == 0 {
                 fall = true
             }
@@ -229,15 +218,15 @@ class QbertClass {
         
         jumpCounter = 1
         
-        let jump1 = SKAction.moveBy(x: side, y: height, duration: 0.2)
-        let jump2 = SKAction.resize(toHeight: 72, duration: 0.2)
+        let jump1 = SKAction.moveBy(x: side, y: height, duration: GameConstants.jumpDuration)
+        let jump2 = SKAction.resize(toHeight: 72, duration: GameConstants.jumpDuration)
         let jumpA = SKAction.group([jump1, jump2])
         
         let np = gamegrid.convertToScreenFromGrid(X: qbert_x, Y: qbert_y)
         
-        let jump3 = SKAction.move(to: np, duration: 0.2)
-        let jump4 = SKAction.resize(toHeight: 58, duration: 0.2)
-        let jump5 = SKAction.resize(toHeight: 64, duration: 0.2)
+        let jump3 = SKAction.move(to: np, duration: GameConstants.jumpDuration)
+        let jump4 = SKAction.resize(toHeight: 58, duration: GameConstants.jumpDuration)
+        let jump5 = SKAction.resize(toHeight: 64, duration: GameConstants.jumpDuration)
         
         let jumpB = SKAction.group([jump3, jump4])
         
@@ -247,11 +236,11 @@ class QbertClass {
         {
             let jump = SKAction.sequence([jumpA, jumpB])
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + GameConstants.fallDuration) {
                 self.qbert?.zPosition = -1
             }
             
-            let fall = SKAction.moveTo(y:-700, duration: 0.4)
+            let fall = SKAction.moveTo(y: GameConstants.fallY, duration: GameConstants.fallDuration)
             qbert?.run(SKAction.sequence([jump, fall]))
             
             
@@ -261,7 +250,7 @@ class QbertClass {
             let notification = Notification(name: .gameEvent, object: nil, userInfo: event)
             NotificationCenter.default.post(notification)
             
-            // Reset to top
+            // Reset Q*bert position to start
             qbert_x = 6
             qbert_y = 0
             
@@ -271,12 +260,11 @@ class QbertClass {
         }
         else
         {
-            // Ok!
-            // Change tile color a split second later if it hasn't already been changed
+            // Handle successful jump - change tile color and check for disk
             
             let jump = SKAction.sequence([jumpA, jumpB, jump5])
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + GameConstants.fallDuration) {
                 
                 if self.gamegrid.getTile(X: self.qbert_x, Y: self.qbert_y) == 1 {
                     
@@ -302,9 +290,6 @@ class QbertClass {
                     
                     // Flying disk!
                     self.gamegrid.setTile(X: self.qbert_x, Y: self.qbert_y, tile : 0)
-                    
-                    print("Right desk, setting to empty")
-                    print(self.gamegrid.getTile(X: self.qbert_x, Y: self.qbert_y))
                     
                     let event = ["Disk": "right"]
                     let notification = Notification(name: .gameEvent, object: nil, userInfo: event)

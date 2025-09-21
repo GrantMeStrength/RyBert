@@ -10,6 +10,7 @@
 		522B33C1271E55D1000794E1 /* Blob.swift in Sources */ = {isa = PBXBuildFile; fileRef = 522B33C0271E55D1000794E1 /* Blob.swift */; };
 		522B33C3271E576E000794E1 /* GameGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 522B33C2271E576E000794E1 /* GameGrid.swift */; };
 		522B33C5271E5A2F000794E1 /* Tile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 522B33C4271E5A2F000794E1 /* Tile.swift */; };
+		522CC12D2E7E05EB00968340 /* GameConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 522CC12C2E7E05EB00968340 /* GameConstants.swift */; };
 		52349F06272B93B90070991C /* jump.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 52349EFD272B93B90070991C /* jump.mp3 */; };
 		52349F07272B93B90070991C /* jump-4.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 52349EFE272B93B90070991C /* jump-4.mp3 */; };
 		52349F08272B93B90070991C /* jump-3.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 52349EFF272B93B90070991C /* jump-3.mp3 */; };
@@ -41,6 +42,7 @@
 		522B33C0271E55D1000794E1 /* Blob.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Blob.swift; sourceTree = "<group>"; };
 		522B33C2271E576E000794E1 /* GameGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameGrid.swift; sourceTree = "<group>"; };
 		522B33C4271E5A2F000794E1 /* Tile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tile.swift; sourceTree = "<group>"; };
+		522CC12C2E7E05EB00968340 /* GameConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameConstants.swift; sourceTree = "<group>"; };
 		52349EFD272B93B90070991C /* jump.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = jump.mp3; sourceTree = "<group>"; };
 		52349EFE272B93B90070991C /* jump-4.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "jump-4.mp3"; sourceTree = "<group>"; };
 		52349EFF272B93B90070991C /* jump-3.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "jump-3.mp3"; sourceTree = "<group>"; };
@@ -121,6 +123,7 @@
 		52577800271A7C7600598A2A /* RyBert */ = {
 			isa = PBXGroup;
 			children = (
+				522CC12C2E7E05EB00968340 /* GameConstants.swift */,
 				524073E6272CE37B0069882C /* Info.plist */,
 				52349EFC272B93AC0070991C /* sounds */,
 				5288BB39272128B600F06698 /* sid.atlas */,
@@ -239,6 +242,7 @@
 				52577802271A7C7600598A2A /* AppDelegate.swift in Sources */,
 				5274357E272506440044345B /* QbertClass.swift in Sources */,
 				522B33C5271E5A2F000794E1 /* Tile.swift in Sources */,
+				522CC12D2E7E05EB00968340 /* GameConstants.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -315,7 +319,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -370,7 +374,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -396,7 +400,7 @@
 				INFOPLIST_KEY_UIStatusBarHidden = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -426,7 +430,7 @@
 				INFOPLIST_KEY_UIStatusBarHidden = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

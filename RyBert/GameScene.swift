@@ -83,23 +83,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     override func didMove(to view: SKView) {
-        
-//        for family in UIFont.familyNames {
-//            print("\(family)")
-//
-//            for name in UIFont.fontNames(forFamilyName: family) {
-//                print("\(name)")
-//            }
-//        }
-        
         physicsWorld.contactDelegate = self
-        //view.showsPhysics = true <- see outlines, useful for debugging
         
-        // Magical scaling code
+        // Configure scene scaling and background
         scene!.scaleMode = .aspectFit
         scene!.backgroundColor = .black
         
-        // Get label node from scene and store it for use later
+        // Initialize UI labels from scene
         self.scoreLabel = self.childNode(withName: "//scoreLabel") as? SKLabelNode
         if let scoreLabel = self.scoreLabel {
             scoreLabel.text = String(score)
@@ -118,6 +108,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.statusLabel = self.childNode(withName: "//statusLabel") as? SKLabelNode
         if let statusLabel = self.statusLabel {
             statusLabel.alpha = 0.0
+            // Enhance the status label appearance
+            statusLabel.fontName = "AvenirNext-Bold"
+            statusLabel.fontSize = 56
+            statusLabel.fontColor = .white
+            statusLabel.setScale(1.0)
+            
+            // Remove any background rectangle that might exist
+            removeStatusLabelBackground()
+            
+            // Add glow effect for visibility
+            setupStatusLabelGlow()
         }
         
         Blobs = Blob(withScene: self)
@@ -141,8 +142,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.littleA3 = self.childNode(withName: "//little3") as? SKSpriteNode
         self.littleA4 = self.childNode(withName: "//little4") as? SKSpriteNode
         
-        let blink1 = SKAction.sequence([SKAction.fadeOut(withDuration: 0.1), SKAction.wait(forDuration: 0.5), SKAction.fadeIn(withDuration: 0.1), SKAction.wait(forDuration: 0.5)])
-        let blink2 = SKAction.sequence([SKAction.fadeIn(withDuration: 0.1), SKAction.wait(forDuration: 0.5), SKAction.fadeOut(withDuration: 0.1), SKAction.wait(forDuration: 0.5)])
+        let blink1 = SKAction.sequence([SKAction.fadeOut(withDuration: GameConstants.flashDuration), SKAction.wait(forDuration: 0.5), SKAction.fadeIn(withDuration: GameConstants.flashDuration), SKAction.wait(forDuration: 0.5)])
+        let blink2 = SKAction.sequence([SKAction.fadeIn(withDuration: GameConstants.flashDuration), SKAction.wait(forDuration: 0.5), SKAction.fadeOut(withDuration: GameConstants.flashDuration), SKAction.wait(forDuration: 0.5)])
         
         
         littleA1?.run(SKAction.repeatForever(blink1))
@@ -150,12 +151,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         littleA3?.run(SKAction.repeatForever(blink2))
         littleA4?.run(SKAction.repeatForever(blink1))
         
-        let fadeTextInAndOut = SKAction.sequence([SKAction.fadeIn(withDuration: 0.2), SKAction.wait(forDuration: 1.0), SKAction.fadeOut(withDuration: 0.2) ])
+        // Create arrow animation for hints
+        let fadeArrowsInAndOut = SKAction.sequence([SKAction.fadeIn(withDuration: GameConstants.flashDuration), SKAction.wait(forDuration: GameConstants.flashDuration), SKAction.fadeOut(withDuration: GameConstants.flashDuration) ])
         
-        let fadeArrowsInAndOut = SKAction.sequence([SKAction.fadeIn(withDuration: 0.2), SKAction.wait(forDuration: 0.2), SKAction.fadeOut(withDuration: 0.2) ])
         
-        
-        // Add notification system
+        // Set up game event notification system
         
         NotificationCenter.default.addObserver(forName: .gameEvent, object: nil, queue: nil) {(notification) in
             
@@ -169,7 +169,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                         self.GameState = .died
                         
                         
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + GameConstants.deathDelay) {
                             
                             if self.lives > 0 {
                                 self.QBert!.reset()
@@ -202,7 +202,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     
                     if name == "Disk" {
                         
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.65) {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + GameConstants.diskDelay) {
                            
                             self.GameState = .action
                             let event = ["Tile": "fly"]
@@ -232,10 +232,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
         }
         
-        // Opening sound
+        // Play opening sound and start game timer
         self.run(soundTune2)
         
-        let _ = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [self] timer in
+        let _ = Timer.scheduledTimer(withTimeInterval: GameConstants.gameTimerInterval, repeats: true) { [self] timer in
             
             
             
@@ -259,18 +259,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 }
                 
                 
-                if (GameStateCounter % 20 == 0)
+                if (GameStateCounter % GameConstants.attractDanceInterval == 0)
                 {
                     Tiles!.danceTiles()
                 }
                 
                 GameStateCounter = GameStateCounter + 1
                 
-                if (GameStateCounter % 5 == 0)
+                if (GameStateCounter % GameConstants.attractTextInterval == 0)
                 {
-                    
-                    statusLabel?.text = "Tap to play"
-                    statusLabel?.run(fadeTextInAndOut)
+                    let randomMessage = GameConstants.tapToPlayMessages.randomElement() ?? "Tap to Play"
+                    showPulsingMessage(randomMessage)
                 }
                 
             case .gamestart:
@@ -299,11 +298,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     TheSid!.hide()
                     Blobs!.reset(level: level)
                     TheSid!.reset()
-                    statusLabel?.text = "Get Ready"
-                    statusLabel?.run(fadeTextInAndOut)
+                    let randomMessage = GameConstants.getReadyMessages.randomElement() ?? "Get Ready!"
+                    showMessage(randomMessage)
                 }
                 GameStateCounter = GameStateCounter + 1
-                if GameStateCounter == 4 {
+                if GameStateCounter == GameConstants.getReadyDelay {
                     arrows?.isHidden = true
                     GameState = .action
                     GameStateCounter = 0
@@ -316,11 +315,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 }
                 Blobs!.controlBlobs()
                 
-                // If the user hasn't touched the screen in a long time, blink the arrows
+                // Show arrow hints for new players who haven't moved yet
                 inactivityCounter = inactivityCounter + 1
-                if inactivityCounter % 20 == 0 {
-                // Blink the arrows to remind folks to move - but only if they haven't touched the screen yet
-                if lives == 3 { arrows?.isHidden = false;
+                if inactivityCounter % GameConstants.inactivityBlinkInterval == 0 {
+                if lives == GameConstants.maxLives { arrows?.isHidden = false;
                     
                     arrows?.run(SKAction.sequence([fadeArrowsInAndOut,fadeArrowsInAndOut,fadeArrowsInAndOut] ))
                 }
@@ -339,7 +337,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     status()
                 }
                 GameStateCounter = GameStateCounter + 1
-                if GameStateCounter == 4 {
+                if GameStateCounter == Int(GameConstants.deathDelay) {
                     
                     if lives == 0 {
                         GameState = .gameover
@@ -358,11 +356,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     Tiles?.flashTiles()
                     levelUp()
                     status()
+                    let randomMessage = GameConstants.levelCompleteMessages.randomElement() ?? "Level Complete!"
+                    showCelebrationMessage(randomMessage)
                 }
                 else
                 {
                     
-                    if GameStateCounter > 5
+                    if GameStateCounter > GameConstants.levelCompleteDelay
                     {
                         GameStateCounter = 0
                         GameState = .levelstart
@@ -379,13 +379,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             case .gameover:
                 if GameStateCounter == 0
                 {
-                    statusLabel?.text = "Game Over"
-                    statusLabel?.run(fadeTextInAndOut)
+                    let randomMessage = GameConstants.gameOverMessages.randomElement() ?? "Game Over"
+                    showMessage(randomMessage)
                     GameStateCounter = 1
                 }
                 else
                 {
-                    if GameStateCounter == 10 {
+                    if GameStateCounter == GameConstants.gameOverDelay {
                         GameStateCounter = 0
                         GameState = .attract
                         break
@@ -432,14 +432,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         score = 0
         level = 1
         round = 1
-        lives = 3
+        lives = GameConstants.maxLives
     }
     
     func levelUp() {
         
         round = round + 1
         
-        if round == 4 {
+        if round == GameConstants.roundsPerLevel {
             round = 1
             level = level + 1
         }
@@ -479,17 +479,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func setLevelDetails() {
         
         switch level {
-        case 1 : level_count = 28
-        case 2 : level_count = 56
-        case 3 : level_count = 56
-        default : level_count = 56
+        case 1 : level_count = GameConstants.level1TileCount
+        case 2 : level_count = GameConstants.level2PlusTileCount
+        case 3 : level_count = GameConstants.level2PlusTileCount
+        default : level_count = GameConstants.level2PlusTileCount
         }
     }
     
     
     func freshtile() {
         self.level_count = self.level_count - 1
-        self.score = self.score + 25
+        self.score = self.score + GameConstants.pointsPerTile
         self.scoreLabel?.text = String(self.score)
         
         if self.level_count == 0 {
@@ -503,7 +503,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if Grid?.getTile(X: X, Y: Y) == 1 {
             Grid?.setTile(X: X, Y: Y, tile: 2)
             let p = Grid!.convertToScreenFromGrid(X: X, Y: Y)
-            Tiles!.generateAlternateTile(atPoint: CGPoint(x: p.x, y: p.y - 40), tile: 2)
+            Tiles!.generateAlternateTile(atPoint: CGPoint(x: p.x, y: p.y - GameConstants.gridTileOffset), tile: 2)
             freshtile()
         }
         else
@@ -511,7 +511,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if level == 3 {
                 Grid?.setTile(X: X, Y: Y, tile: 3)
                 let p = Grid!.convertToScreenFromGrid(X: X, Y: Y)
-                Tiles!.generateAlternateTile(atPoint: CGPoint(x: p.x, y: p.y - 40), tile: 3)
+                Tiles!.generateAlternateTile(atPoint: CGPoint(x: p.x, y: p.y - GameConstants.gridTileOffset), tile: 3)
                 freshtile()
             }
             
@@ -523,12 +523,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func touchDown(atPoint pos : CGPoint) {
         
-        // Can only move Qbert
+        // Handle touch input for Q*bert movement
         if self.GameState == .action {
             QBert?.moveQbert(tap: pos)
             inactivityCounter = 0
         }
-        // Baddies won't appear until the player first moves..
         
         if GameState == .attract {
             GameState = .gamestart
@@ -566,5 +565,156 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
+    }
+    
+    // MARK: - Message Animation Helpers
+    
+    func removeStatusLabelBackground() {
+        // Look for any background shapes that might be behind the status label
+        // Check parent and siblings for rectangles or background shapes
+        if let statusLabel = self.statusLabel {
+            // Check the label's parent for background shapes
+            if let parent = statusLabel.parent {
+                for child in parent.children {
+                    // Look for shape nodes that might be backgrounds
+                    if let shapeNode = child as? SKShapeNode,
+                       child != statusLabel,
+                       abs(child.position.x - statusLabel.position.x) < 200,
+                       abs(child.position.y - statusLabel.position.y) < 100 {
+                        // Make it transparent
+                        shapeNode.fillColor = .clear
+                        shapeNode.strokeColor = .clear
+                        shapeNode.alpha = 0.0
+                    }
+                    // Also check for sprite nodes that might be backgrounds
+                    if let spriteNode = child as? SKSpriteNode,
+                       child != statusLabel,
+                       child.name?.contains("background") == true || child.name?.contains("status") == true {
+                        spriteNode.alpha = 0.0
+                    }
+                }
+            }
+        }
+    }
+    
+    func setupStatusLabelGlow() {
+        guard let statusLabel = self.statusLabel else { return }
+        
+        // Remove any existing background or glow effects
+        statusLabel.removeAllChildren()
+        
+        // Create glow effect using multiple shadow labels
+        let glowColors: [UIColor] = [
+            UIColor.black.withAlphaComponent(0.9),
+            UIColor.black.withAlphaComponent(0.7),
+            UIColor.black.withAlphaComponent(0.5),
+            UIColor.black.withAlphaComponent(0.3)
+        ]
+        
+        let glowOffsets: [(CGFloat, CGFloat)] = [
+            (0, 0),   // Direct shadow
+            (3, 3),   // First offset shadow
+            (6, 6),   // Second offset shadow
+            (9, 9)    // Outer glow
+        ]
+        
+        for (index, color) in glowColors.enumerated() {
+            let glowLabel = SKLabelNode()
+            glowLabel.fontName = statusLabel.fontName
+            glowLabel.fontSize = statusLabel.fontSize
+            glowLabel.fontColor = color
+            glowLabel.text = statusLabel.text
+            glowLabel.horizontalAlignmentMode = statusLabel.horizontalAlignmentMode
+            glowLabel.verticalAlignmentMode = statusLabel.verticalAlignmentMode
+            glowLabel.position = CGPoint(x: glowOffsets[index].0, y: -glowOffsets[index].1)
+            glowLabel.zPosition = -1 - CGFloat(index)
+            glowLabel.name = "glow_\(index)"
+            statusLabel.addChild(glowLabel)
+        }
+    }
+    
+    func updateGlowText(_ text: String) {
+        guard let statusLabel = self.statusLabel else { return }
+        
+        // Update main label
+        statusLabel.text = text
+        
+        // Update all glow labels
+        for i in 0..<4 {
+            if let glowLabel = statusLabel.childNode(withName: "glow_\(i)") as? SKLabelNode {
+                glowLabel.text = text
+            }
+        }
+    }
+    
+    func createMessageAnimation() -> SKAction {
+        // Bouncy entrance animation
+        let scaleUp = SKAction.scale(to: 1.2, duration: GameConstants.messageBounceDuration / 2)
+        let scaleDown = SKAction.scale(to: 1.0, duration: GameConstants.messageBounceDuration / 2)
+        let fadeIn = SKAction.fadeIn(withDuration: GameConstants.messageAppearDuration)
+        let bounce = SKAction.sequence([scaleUp, scaleDown])
+        
+        let entrance = SKAction.group([fadeIn, bounce])
+        let wait = SKAction.wait(forDuration: GameConstants.messageDisplayDuration)
+        let fadeOut = SKAction.fadeOut(withDuration: GameConstants.messageFadeDuration)
+        
+        return SKAction.sequence([entrance, wait, fadeOut])
+    }
+    
+    func createPulsingMessageAnimation() -> SKAction {
+        // Pulsing animation for attract mode
+        let scaleUp = SKAction.scale(to: 1.1, duration: GameConstants.messagePulseDuration / 2)
+        let scaleDown = SKAction.scale(to: 1.0, duration: GameConstants.messagePulseDuration / 2)
+        let pulse = SKAction.sequence([scaleUp, scaleDown])
+        
+        let fadeIn = SKAction.fadeIn(withDuration: GameConstants.messageAppearDuration)
+        let wait = SKAction.wait(forDuration: GameConstants.messageDisplayDuration)
+        let fadeOut = SKAction.fadeOut(withDuration: GameConstants.messageFadeDuration)
+        
+        let pulseGroup = SKAction.group([pulse, fadeIn])
+        return SKAction.sequence([pulseGroup, wait, fadeOut])
+    }
+    
+    func showMessage(_ text: String, animated: Bool = true) {
+        statusLabel?.removeAllActions()
+        updateGlowText(text)
+        statusLabel?.setScale(1.0)
+        
+        if animated {
+            statusLabel?.run(createMessageAnimation())
+        } else {
+            statusLabel?.alpha = 1.0
+        }
+    }
+    
+    func showPulsingMessage(_ text: String) {
+        statusLabel?.removeAllActions()
+        updateGlowText(text)
+        statusLabel?.setScale(1.0)
+        statusLabel?.run(createPulsingMessageAnimation())
+    }
+    
+    func showCelebrationMessage(_ text: String) {
+        statusLabel?.removeAllActions()
+        updateGlowText(text)
+        statusLabel?.setScale(1.0)
+        statusLabel?.run(createCelebrationAnimation())
+    }
+    
+    func createCelebrationAnimation() -> SKAction {
+        // Exciting celebration animation with multiple bounces
+        let bigBounce = SKAction.scale(to: 1.5, duration: 0.2)
+        let settle1 = SKAction.scale(to: 0.9, duration: 0.1)
+        let bounce2 = SKAction.scale(to: 1.2, duration: 0.1)
+        let settle2 = SKAction.scale(to: 1.0, duration: 0.1)
+        
+        let fadeIn = SKAction.fadeIn(withDuration: 0.2)
+        let celebration = SKAction.sequence([bigBounce, settle1, bounce2, settle2])
+        
+        let entrance = SKAction.group([fadeIn, celebration])
+        let wait = SKAction.wait(forDuration: GameConstants.messageDisplayDuration)
+        let fadeOut = SKAction.fadeOut(withDuration: GameConstants.messageFadeDuration)
+        
+        return SKAction.sequence([entrance, wait, fadeOut])
     }
 }
